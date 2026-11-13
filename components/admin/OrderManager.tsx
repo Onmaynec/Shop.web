@@ -1,5 +1,5 @@
 'use client';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter } from 'next/navigation';
 import { Search, ChevronDown, ChevronUp, ReceiptText } from 'lucide-react';
 type Status='PENDING_PAYMENT'|'PAID'|'PROCESSING'|'FULFILLED'|'CANCELLED'|'REFUNDED';
@@ -10,6 +10,7 @@ const money=(v:number)=>(v/100).toLocaleString('ru-RU',{style:'currency',currenc
 export default function OrderManager({initialOrders,total,query,filterStatus}:{initialOrders:Order[];total:number;query:string;filterStatus:string}){
  const router=useRouter();const [items,setItems]=useState(initialOrders);const [expanded,setExpanded]=useState<string|null>(null);
  const [search,setSearch]=useState(query);const [status,setStatus]=useState(filterStatus);
+ useEffect(()=>{setItems(initialOrders);setSearch(query);setStatus(filterStatus);},[initialOrders,query,filterStatus]);
  const [busy,setBusy]=useState<string|null>(null);const [message,setMessage]=useState<{text:string;ok:boolean}|null>(null);
  function filter(e:FormEvent){e.preventDefault();const p=new URLSearchParams();if(search.trim())p.set('q',search.trim());if(status)p.set('status',status);router.push('/admin/orders'+(p.size?'?'+p.toString():''));}
  async function change(o:Order){const action=actions[o.status];if(!action)return;if(!confirm(action.label+' для заказа #'+o.id.slice(-8)+'?'))return;
