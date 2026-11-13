@@ -1,11 +1,94 @@
-generator client { provider = "prisma-client-js" }
-datasource db { provider = "postgresql" url = env("DATABASE_URL") }
-enum OrderStatus { PENDING_PAYMENT PAID PROCESSING FULFILLED CANCELLED REFUNDED }
-enum ProductStatus { DRAFT ACTIVE ARCHIVED }
-enum UserRole { CUSTOMER ADMIN }
-model User { id String @id @default(cuid()) email String @unique passwordHash String role UserRole @default(CUSTOMER) createdAt DateTime @default(now()) orders Order[] }
-model Category { id String @id @default(cuid()) name String slug String @unique products Product[] }
-model Product { id String @id @default(cuid()) name String slug String @unique description String priceKopecks Int status ProductStatus @default(DRAFT) imageUrl String? categoryId String category Category @relation(fields:[categoryId],references:[id]) orderItems OrderItem[] createdAt DateTime @default(now()) }
-model Order { id String @id @default(cuid()) email String userId String? user User? @relation(fields:[userId],references:[id]) status OrderStatus @default(PENDING_PAYMENT) totalKopecks Int currency String @default("RUB") createdAt DateTime @default(now()) items OrderItem[] paymentAttempts PaymentAttempt[] }
-model OrderItem { id String @id @default(cuid()) orderId String productId String nameSnapshot String unitPriceKopecks Int quantity Int order Order @relation(fields:[orderId],references:[id]) product Product @relation(fields:[productId],references:[id]) }
-model PaymentAttempt { id String @id @default(cuid()) orderId String provider String externalId String? status String @default("CREATED") createdAt DateTime @default(now()) order Order @relation(fields:[orderId],references:[id]) @@unique([provider,externalId]) }
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum OrderStatus {
+  PENDING_PAYMENT
+  PAID
+  PROCESSING
+  FULFILLED
+  CANCELLED
+  REFUNDED
+}
+
+enum ProductStatus {
+  DRAFT
+  ACTIVE
+  ARCHIVED
+}
+
+enum UserRole {
+  CUSTOMER
+  ADMIN
+}
+
+model User {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String
+  role         UserRole @default(CUSTOMER)
+  createdAt    DateTime @default(now())
+  orders       Order[]
+}
+
+model Category {
+  id       String    @id @default(cuid())
+  name     String
+  slug     String    @unique
+  products Product[]
+}
+
+model Product {
+  id            String        @id @default(cuid())
+  name          String
+  slug          String        @unique
+  description   String
+  priceKopecks  Int
+  status        ProductStatus @default(DRAFT)
+  imageUrl      String?
+  categoryId    String
+  category      Category      @relation(fields: [categoryId], references: [id])
+  orderItems    OrderItem[]
+  createdAt     DateTime      @default(now())
+}
+
+model Order {
+  id              String           @id @default(cuid())
+  email           String
+  userId          String?
+  user            User?            @relation(fields: [userId], references: [id])
+  status          OrderStatus      @default(PENDING_PAYMENT)
+  totalKopecks    Int
+  currency        String           @default("RUB")
+  createdAt       DateTime         @default(now())
+  items           OrderItem[]
+  paymentAttempts PaymentAttempt[]
+}
+
+model OrderItem {
+  id               String  @id @default(cuid())
+  orderId          String
+  productId        String
+  nameSnapshot     String
+  unitPriceKopecks Int
+  quantity         Int
+  order            Order   @relation(fields: [orderId], references: [id])
+  product          Product @relation(fields: [productId], references: [id])
+}
+
+model PaymentAttempt {
+  id         String   @id @default(cuid())
+  orderId    String
+  provider   String
+  externalId String?
+  status     String   @default("CREATED")
+  createdAt  DateTime @default(now())
+  order      Order    @relation(fields: [orderId], references: [id])
+
+  @@unique([provider, externalId])
+}
