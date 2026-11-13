@@ -1,0 +1,4 @@
+import { db } from '../../lib/db';
+import Link from 'next/link';
+export const dynamic='force-dynamic';
+export default async function Catalog(){const products=await db.product.findMany({where:{status:'ACTIVE'},include:{category:true},orderBy:{createdAt:'desc'}});return <main className="content"><div className="eyebrow">МАГАЗИН / КАТАЛОГ</div><h1>Каталог товаров</h1><p className="muted">Все цены и предложения управляются через базу данных. Оплата пока недоступна.</p><div className="products">{products.map(p=><Link href={'/product/'+p.slug} className="product" key={p.id}><div className="placeholder">S / S</div><small>{p.category.name}</small><h3>{p.name}</h3><p>{(p.priceKopecks/100).toLocaleString('ru-RU')} ₽</p></Link>)}</div>{products.length===0&&<div className="empty">Каталог пока пуст. Добавьте товары в базу данных.</div>}</main>}
