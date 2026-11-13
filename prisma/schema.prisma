@@ -37,10 +37,11 @@ model User {
 }
 
 model Category {
-  id       String    @id @default(cuid())
-  name     String
-  slug     String    @unique
-  products Product[]
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String    @default("")
+  products    Product[]
 }
 
 model Product {
