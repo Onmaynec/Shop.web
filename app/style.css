@@ -356,3 +356,28 @@ h1,h2,h3{letter-spacing:-.045em}
 @media(prefers-reduced-motion:reduce){
   *,*::before,*::after{animation-duration:.01ms!important;animation-iteration-count:1!important;transition-duration:.01ms!important;scroll-behavior:auto!important}
 }
+
+/* Loading and error states — consistent across storefront routes */
+.add-to-cart{display:flex;align-items:center;flex-wrap:wrap;gap:9px}
+.add-to-cart .button{min-height:45px}
+.add-to-cart>.account-error{flex-basis:100%;margin:5px 0 0}
+.state-page{position:relative;min-height:68vh;max-width:980px;padding:95px 28px 115px;margin:auto;display:flex;flex-direction:column;align-items:flex-start;justify-content:center;overflow:hidden}
+.state-code{position:absolute;right:25px;top:10px;font-size:clamp(160px,34vw,450px);font-weight:800;color:transparent;-webkit-text-stroke:1px #343434;line-height:1;letter-spacing:-.12em;z-index:-1}
+.state-error-icon{width:63px;height:63px;display:grid;place-items:center;border:1px solid #454545;border-radius:13px;margin-bottom:38px}
+.state-page h1{font-size:clamp(40px,5vw,65px);font-weight:620;line-height:1.1;margin:21px 0}
+.state-page p{font-size:14px;color:#999;line-height:1.8;max-width:530px}
+.state-actions{display:flex;gap:11px;flex-wrap:wrap;margin-top:26px}
+.page-loading{padding-top:95px}
+.loading-line{border-radius:5px;background:linear-gradient(105deg,#1b1b1b 20%,#2c2c2c 50%,#1b1b1b 80%);background-size:250% 100%;animation:skeleton-shimmer 2s linear infinite}
+.loading-short{height:13px;width:150px;margin-bottom:24px}
+.loading-title{height:46px;width:min(400px,80%);margin-bottom:22px}
+.loading-text{height:16px;width:min(370px,90%);margin-bottom:14px}
+.loading-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:13px;margin-top:55px}
+.loading-card{background:#0c0c0c;border:1px solid #252525;border-radius:11px;padding:14px}
+.loading-card-image{height:150px;width:100%;margin-bottom:18px}
+.loading-card .loading-text{height:15px;width:84%}
+.loading-card .loading-short{width:45%;height:12px;margin-bottom:5px}
+.loading-caption{display:block;margin-top:24px;color:#888;font-size:12px}
+@keyframes skeleton-shimmer{from{background-position:100% 0}to{background-position:-100% 0}}
+@media(max-width:900px){.loading-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:640px){.state-page{padding:80px 18px}.state-code{top:60px;font-size:45vw}.loading-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}.loading-card{padding:10px}.loading-card-image{height:105px}}
