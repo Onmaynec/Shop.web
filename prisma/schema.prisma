@@ -59,16 +59,19 @@ model Product {
 }
 
 model Order {
-  id              String           @id @default(cuid())
-  email           String
-  userId          String?
-  user            User?            @relation(fields: [userId], references: [id])
-  status          OrderStatus      @default(PENDING_PAYMENT)
-  totalKopecks    Int
-  currency        String           @default("RUB")
-  createdAt       DateTime         @default(now())
-  items           OrderItem[]
-  paymentAttempts PaymentAttempt[]
+  id                  String           @id @default(cuid())
+  email               String
+  userId              String?
+  user                User?            @relation(fields: [userId], references: [id])
+  status              OrderStatus      @default(PENDING_PAYMENT)
+  totalKopecks        Int
+  currency            String           @default("RUB")
+  idempotencyKeyHash  String?          @unique
+  requestHash         String?
+  createdAt           DateTime         @default(now())
+  items               OrderItem[]
+  paymentAttempts     PaymentAttempt[]
+  paymentEvents       PaymentEvent[]
 }
 
 model OrderItem {
@@ -83,13 +86,36 @@ model OrderItem {
 }
 
 model PaymentAttempt {
-  id         String   @id @default(cuid())
-  orderId    String
-  provider   String
-  externalId String?
-  status     String   @default("CREATED")
-  createdAt  DateTime @default(now())
-  order      Order    @relation(fields: [orderId], references: [id])
+  id             String         @id @default(cuid())
+  orderId        String
+  provider       String
+  externalId     String?
+  status         String         @default("CREATED")
+  amountKopecks  Int?
+  currency       String         @default("RUB")
+  createdAt      DateTime       @default(now())
+  updatedAt      DateTime       @updatedAt
+  order          Order          @relation(fields: [orderId], references: [id])
+  events         PaymentEvent[]
 
   @@unique([provider, externalId])
+  @@index([orderId, provider])
+}
+
+model PaymentEvent {
+  id               String         @id @default(cuid())
+  provider         String
+  eventId          String
+  eventType        String
+  externalId       String
+  orderId          String
+  paymentAttemptId String
+  amountKopecks    Int
+  currency         String
+  createdAt        DateTime       @default(now())
+  order            Order          @relation(fields: [orderId], references: [id])
+  attempt          PaymentAttempt @relation(fields: [paymentAttemptId], references: [id])
+
+  @@unique([provider, eventId])
+  @@index([orderId, createdAt])
 }
