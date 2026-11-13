@@ -73,9 +73,9 @@ async function run() {
       headers:{'Content-Type':'application/json','Origin':base,'Cookie':cookie,'Idempotency-Key':requestKey},
       body:JSON.stringify({email,items:[{productId:product.id,quantity:2}]})
     });
-    assert.equal(response.status,201,await response.text().catch(()=>'(body unavailable)'));
-    // Response body was consumed above only if assert fails.
-    const order=(await response.json()).order;
+    const responseData=await response.json().catch(()=>null);
+    assert.equal(response.status,201,JSON.stringify(responseData));
+    const order=responseData.order;
     assert.equal(order.totalKopecks,150000);
 
     const paid=await json('/api/admin/sandbox/payments','POST',{orderId:order.id,operation:'pay'});
