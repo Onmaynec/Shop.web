@@ -11,7 +11,8 @@
     "test": "vitest run",
     "db:seed": "node prisma/seed.cjs",
     "test:smoke": "node tests/smoke.mjs",
-    "test:sandbox": "node tests/sandbox.mjs"
+    "test:sandbox": "node tests/sandbox.mjs",
+    "test:visual": "playwright test"
   },
   "dependencies": {
     "next": "^15.3.0",
@@ -27,6 +28,7 @@
     "@types/node": "^22.0.0",
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "@playwright/test": "^1.56.0"
   }
 }
