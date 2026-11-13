@@ -1,0 +1,4 @@
+import { currentUser } from '../../lib/auth';
+import { db } from '../../lib/db';
+export const dynamic='force-dynamic';
+export default async function Admin(){const user=await currentUser();if(!user||user.role!=='ADMIN')return <main className="content"><h1>Доступ запрещён</h1><p>Раздел доступен только администраторам.</p></main>;const [products,orders,users]=await Promise.all([db.product.count(),db.order.count(),db.user.count()]);return <main className="content"><div className="eyebrow">ADMIN / OVERVIEW</div><h1>Панель управления</h1><div className="features"><article><h2>{products}</h2><p>Товаров</p></article><article><h2>{orders}</h2><p>Заказов</p></article><article><h2>{users}</h2><p>Пользователей</p></article></div><p className="muted">В v0.2.0 доступна обзорная панель. Управление товарами и заказами — в следующей версии.</p></main>;}
