@@ -4,6 +4,7 @@ import { notFound } from 'next/navigation';
 import { Prisma, OrderStatus } from '@prisma/client';
 import Link from 'next/link';
 import OrderManager from '../../../components/admin/OrderManager';
+import { sandboxEnabled } from '../../../lib/payments';
 export const dynamic='force-dynamic';
 export default async function OrdersPage({searchParams}:{searchParams:Promise<{q?:string;status?:string;page?:string}>}){
  const user=await currentUser();if(!user||user.role!=='ADMIN')notFound();
@@ -14,7 +15,7 @@ export default async function OrdersPage({searchParams}:{searchParams:Promise<{q
  const [total,orders]=await Promise.all([db.order.count({where}),db.order.findMany({where,orderBy:{createdAt:'desc'},skip:(page-1)*20,take:20,include:{items:true}})]);
  const mapped=orders.map(o=>({id:o.id,email:o.email,status:o.status,totalKopecks:o.totalKopecks,createdAt:o.createdAt.toISOString(),items:o.items.map(i=>({id:i.id,name:i.nameSnapshot,unitPriceKopecks:i.unitPriceKopecks,quantity:i.quantity}))}));
  const query=new URLSearchParams();if(q)query.set('q',q);if(status)query.set('status',status);const pages=Math.max(1,Math.ceil(total/20));
- return <><OrderManager initialOrders={mapped} total={total} query={q} filterStatus={status||''}/>
+ return <><OrderManager initialOrders={mapped} total={total} query={q} filterStatus={status||''} sandboxEnabled={sandboxEnabled()}/>
  <div className="adm-pagination"><span>Страница {page} из {pages}</span><div>{page>1&&<Link href={'/admin/orders?'+query.toString()+(query.size?'&':'')+'page='+(page-1)}>← Назад</Link>}{page<pages&&<Link href={'/admin/orders?'+query.toString()+(query.size?'&':'')+'page='+(page+1)}>Далее →</Link>}</div></div>
  </>;
 }
