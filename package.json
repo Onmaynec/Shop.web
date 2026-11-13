@@ -1,6 +1,6 @@
 {
   "name": "standoffshop",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -9,7 +9,9 @@
     "db:push": "prisma db push",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "db:seed": "node prisma/seed.cjs"
+    "db:seed": "node prisma/seed.cjs",
+    "test:smoke": "node tests/smoke.mjs",
+    "test:sandbox": "node tests/sandbox.mjs"
   },
   "dependencies": {
     "next": "^15.3.0",
