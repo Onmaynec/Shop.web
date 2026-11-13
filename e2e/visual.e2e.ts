@@ -29,6 +29,10 @@ test('catalog, product and cart',async({page},testInfo)=>{
   await page.getByRole('link',{name:/Перейти к заказу/}).click();
   await expect(page.getByRole('heading',{name:'Ваша корзина'})).toBeVisible();
   await screenshot(page,testInfo,'cart');
+  await page.getByPlaceholder('you@example.com').fill('visual-buyer@example.test');
+  await page.getByRole('button',{name:/Создать заказ без оплаты/}).click();
+  await expect(page.getByRole('heading',{name:'Заказ создан!'})).toBeVisible();
+  await screenshot(page,testInfo,'order-confirmation');
 });
 
 test('profile and admin UI',async({page},testInfo)=>{
@@ -48,6 +52,15 @@ test('profile and admin UI',async({page},testInfo)=>{
   await page.getByRole('button',{name:'Добавить товар'}).click();
   await expect(page.getByRole('dialog',{name:'Новый товар'})).toBeVisible();
   await screenshot(page,testInfo,'admin-product-dialog');
+  await page.goto('/admin/categories');
+  await expect(page.getByRole('heading',{name:'Категории'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-categories');
+  await page.goto('/admin/orders');
+  await expect(page.getByRole('heading',{name:'Заказы'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-orders');
+  await page.goto('/admin/customers');
+  await expect(page.getByRole('heading',{name:'Пользователи'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-customers');
 });
 
 test('responsive navigation',async({page,isMobile},testInfo)=>{
