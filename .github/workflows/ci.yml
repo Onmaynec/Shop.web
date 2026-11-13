@@ -8,6 +8,20 @@ on:
 jobs:
   verify:
     runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: standoffshop
+          POSTGRES_PASSWORD: standoffshop
+          POSTGRES_DB: standoffshop
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U standoffshop -d standoffshop"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
     env:
       DATABASE_URL: postgresql://standoffshop:standoffshop@localhost:5432/standoffshop?schema=public
       SESSION_SECRET: ci-only-secret-not-used-in-production-00000000
@@ -26,5 +40,17 @@ jobs:
         run: npm run typecheck
       - name: Unit tests
         run: npm test
+      - name: Prepare test database
+        run: npm run db:push
       - name: Build Next.js
         run: npm run build
+      - name: Integration smoke test
+        run: |
+          npm run start > /tmp/standoffshop-next.log 2>&1 &
+          ready=0
+          for i in $(seq 1 40); do
+            if curl --silent --fail http://localhost:3000/ > /dev/null; then ready=1; break; fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/standoffshop-next.log; exit 1; fi
+          node tests/smoke.mjs
