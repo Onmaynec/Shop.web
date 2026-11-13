@@ -54,7 +54,7 @@ export function signSandboxWebhook(rawBody: string, timestamp: string): string {
 
 export class SandboxPaymentProvider implements PaymentProvider {
   readonly id = 'sandbox';
-  async createCheckout(): Promise<{ externalId: string; checkoutUrl: null }> {
+  async createCheckout(_input: { orderId: string; amountKopecks: number; currency: string }): Promise<{ externalId: string; checkoutUrl: null }> {
     requireSandboxSecret();
     return { externalId: randomUUID(), checkoutUrl: null };
   }
