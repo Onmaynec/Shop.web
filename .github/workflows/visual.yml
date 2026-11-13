@@ -1,0 +1,54 @@
+name: Visual UI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  browser:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: standoffshop
+          POSTGRES_PASSWORD: standoffshop
+          POSTGRES_DB: standoffshop
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U standoffshop -d standoffshop"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      CI: 'true'
+      DATABASE_URL: postgresql://standoffshop:standoffshop@localhost:5432/standoffshop?schema=public
+      SESSION_SECRET: ci-only-visual-secret-not-for-production-00000000
+      PAYMENT_SANDBOX_ENABLED: 'false'
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install
+        run: npm install --no-audit --no-fund
+      - name: Prepare test data
+        run: |
+          npx prisma generate
+          npm run db:push
+          node tests/visual.seed.cjs
+      - name: Install Chromium
+        run: npx playwright install --with-deps chromium
+      - name: Browser tests and screenshots
+        run: npx playwright test
+      - name: Upload browser report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: standoffshop-ui-preview
+          path: |
+            playwright-report
+            test-results
+          retention-days: 7
