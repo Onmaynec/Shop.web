@@ -54,3 +54,47 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/standoffshop-next.log; exit 1; fi
           node tests/smoke.mjs
+
+  sandbox:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: standoffshop
+          POSTGRES_PASSWORD: standoffshop
+          POSTGRES_DB: standoffshop
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U standoffshop -d standoffshop"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://standoffshop:standoffshop@localhost:5432/standoffshop?schema=public
+      SESSION_SECRET: ci-only-session-secret-not-for-production-0000
+      PAYMENT_SANDBOX_ENABLED: 'true'
+      PAYMENT_SANDBOX_SECRET: ci-only-sandbox-signing-secret-not-for-production-0000
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install dependencies
+        run: npm install --no-audit --no-fund
+      - name: Validate and generate Prisma client
+        run: |
+          npx prisma validate
+          npx prisma generate
+          npm run db:push
+      - name: Start development server and verify sandbox
+        run: |
+          npm run dev > /tmp/standoffshop-dev.log 2>&1 &
+          ready=0
+          for i in $(seq 1 50); do
+            if curl --silent --fail http://localhost:3000/ > /dev/null; then ready=1; break; fi
+            sleep 2
+          done
+          if [ "$ready" -ne 1 ]; then cat /tmp/standoffshop-dev.log; exit 1; fi
+          node tests/sandbox.mjs
