@@ -11,7 +11,7 @@ test('home and global search', async ({page},testInfo) => {
   await screenshot(page,testInfo,'home');
   await page.keyboard.press('Control+k');
   await expect(page.getByRole('dialog',{name:'Поиск товаров'})).toBeVisible();
-  await page.getByRole('searchbox',{name:''}).fill('Анализ');
+  await page.getByPlaceholder('Найти товар или услугу...').fill('Анализ');
   await page.keyboard.press('Enter');
   await expect(page).toHaveURL(/\/catalog\?q=/);
   await expect(page.getByRole('heading',{name:'Выбирай своё.'})).toBeVisible();
