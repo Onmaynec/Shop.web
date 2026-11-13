@@ -21,7 +21,7 @@ export default function ProductManager({initialProducts,categories,total}:{initi
     try {
       const amount=Number(draft.price.replace(',','.'));const kopecks=Math.round(amount*100);
       if(!Number.isFinite(amount)||!Number.isSafeInteger(kopecks)||kopecks<1)throw Error('Укажите корректную цену');
-      const payload={...draft,priceKopecks:kopecks};const response=await fetch('/api/admin/products',{method:draft.id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
+      const {price: _price, ...fields}=draft;const payload={...fields,priceKopecks:kopecks};const response=await fetch('/api/admin/products',{method:draft.id?'PATCH':'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(payload)});
       const data=await response.json().catch(()=>({error:'Сервер вернул неверный ответ'}));
       if(!response.ok)throw Error(data.error||'Не удалось сохранить товар');
       if(draft.id){setItems(current=>current.map(p=>p.id===data.product.id?{...data.product,categoryName:categories.find(c=>c.id===data.product.categoryId)?.name||''}:p));}
