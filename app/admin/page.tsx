@@ -1,17 +1,28 @@
-import { currentUser } from '../../lib/auth';
+import Link from 'next/link';
+import { Package, ShoppingBag, Users, Clock3, ArrowUpRight } from 'lucide-react';
 import { db } from '../../lib/db';
-import { createCategory,createProduct,updateProduct,archiveProduct,updateOrderStatus } from './actions';
-export const dynamic='force-dynamic';
-export default async function Admin(){
- const user=await currentUser();
- if(!user||user.role!=='ADMIN')return <main className="content"><h1>Доступ запрещён</h1><p>Раздел доступен только администраторам.</p></main>;
- const [categories,products,orders,users]=await Promise.all([db.category.findMany({orderBy:{name:'asc'}}),db.product.findMany({orderBy:{createdAt:'desc'},take:100}),db.order.findMany({include:{items:true},orderBy:{createdAt:'desc'},take:100}),db.user.count()]);
- return <main className="content admin">
- <div className="eyebrow">STANDOFFSHOP / ADMIN</div><h1>Управление магазином</h1>
- <div className="admin-stats"><article><strong>{products.length}</strong><span>Товары (до 100)</span></article><article><strong>{orders.length}</strong><span>Заказы (до 100)</span></article><article><strong>{users}</strong><span>Пользователи</span></article></div>
- <section className="admin-panel"><h2>Категории</h2><form action={createCategory} className="admin-form"><label>Название<input name="name" minLength={2} required/></label><label>Slug<input name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" required/></label><button className="button">Создать категорию</button></form></section>
- <section className="admin-panel"><h2>Новый товар</h2><form action={createProduct} className="admin-form"><label>Название<input name="name" minLength={2} required/></label><label>Slug<input name="slug" pattern="[a-z0-9]+(-[a-z0-9]+)*" required/></label><label>Описание<textarea name="description" minLength={5} required/></label><label>Категория<select name="categoryId">{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label>Цена, копейки<input name="priceKopecks" type="number" min="1" required/></label><label>Статус<select name="status"><option value="DRAFT">Черновик</option><option value="ACTIVE">В продаже</option><option value="ARCHIVED">Архив</option></select></label><button className="button" disabled={!categories.length}>Создать товар</button></form></section>
- <section className="admin-panel"><h2>Редактирование товаров</h2>{products.map(p=><details key={p.id} className="admin-record"><summary>{p.name} · {(p.priceKopecks/100).toFixed(2)} ₽ · {p.status}</summary><form action={updateProduct} className="admin-form"><input type="hidden" name="id" value={p.id}/><label>Название<input name="name" defaultValue={p.name} required/></label><label>Slug<input name="slug" defaultValue={p.slug} required/></label><label>Описание<textarea name="description" defaultValue={p.description} required/></label><label>Категория<select name="categoryId" defaultValue={p.categoryId}>{categories.map(c=><option key={c.id} value={c.id}>{c.name}</option>)}</select></label><label>Цена, копейки<input name="priceKopecks" type="number" min="1" defaultValue={p.priceKopecks} required/></label><label>Статус<select name="status" defaultValue={p.status}><option value="DRAFT">Черновик</option><option value="ACTIVE">В продаже</option><option value="ARCHIVED">Архив</option></select></label><button className="button">Сохранить</button></form><form action={archiveProduct}><input type="hidden" name="id" value={p.id}/><button className="admin-secondary">Снять с продажи</button></form></details>)}</section>
- <section className="admin-panel"><h2>Заказы</h2><p className="muted">Оплата отключена. Нельзя вручную отмечать заказы оплаченными.</p>{orders.map(o=><article className="admin-record" key={o.id}><strong>{o.id}</strong><p>{o.email} · {(o.totalKopecks/100).toFixed(2)} ₽ · {o.status}</p><ul>{o.items.map(i=><li key={i.id}>{i.nameSnapshot} × {i.quantity}</li>)}</ul><form action={updateOrderStatus} className="admin-form"><input type="hidden" name="id" value={o.id}/><label>Изменить статус<select name="status"><option value="CANCELLED">Отменить неоплаченный</option><option value="PROCESSING">Обработка (только оплаченный)</option><option value="FULFILLED">Выполнен (после обработки)</option></select></label><button className="admin-secondary">Применить</button></form></article>)}</section>
- </main>;
+import { currentUser } from '../../lib/auth';
+import { notFound } from 'next/navigation';
+export const dynamic = 'force-dynamic';
+const format = (kopecks:number) => (kopecks / 100).toLocaleString('ru-RU', { style:'currency', currency:'RUB' });
+export default async function Dashboard() {
+  const user=await currentUser(); if(!user||user.role!=='ADMIN')notFound();
+  const [activeProducts,allProducts,allOrders,pendingOrders,customers,recentOrders,paidRevenue]=await Promise.all([
+    db.product.count({where:{status:'ACTIVE'}}),db.product.count(),db.order.count(),
+    db.order.count({where:{status:'PENDING_PAYMENT'}}),db.user.count(),
+    db.order.findMany({orderBy:{createdAt:'desc'},take:6,select:{id:true,email:true,totalKopecks:true,status:true,createdAt:true}}),
+    db.order.aggregate({where:{status:{in:['PAID','PROCESSING','FULFILLED']}},_sum:{totalKopecks:true}})
+  ]);
+  const stats=[
+    {title:'Всего товаров',value:allProducts,detail:activeProducts+' опубликовано',Icon:Package},
+    {title:'Всего заказов',value:allOrders,detail:'Все статусы',Icon:ShoppingBag},
+    {title:'Ожидают оплаты',value:pendingOrders,detail:'Платёжный модуль отключён',Icon:Clock3},
+    {title:'Зарегистрировано',value:customers,detail:'Аккаунты пользователей',Icon:Users}
+  ];
+  return <><div className="adm-head"><div><div className="adm-eyebrow">ОБЗОР МАГАЗИНА</div><h1>Панель управления</h1><p>Каталог, покупатели и заказы — в одном месте.</p></div><Link href="/admin/products" className="adm-btn primary"><Package size={17}/> Управлять товарами</Link></div>
+    <div className="adm-stat-grid">{stats.map(({title,value,detail,Icon})=><div className="adm-stat" key={title}><div className="adm-stat-top"><span>{title}</span><Icon size={19}/></div><strong>{value.toLocaleString('ru-RU')}</strong><small>{detail}</small></div>)}</div>
+    <div className="adm-columns"><section className="adm-card"><div className="adm-card-head"><div><h2>Последние заказы</h2><p>Актуальные обращения покупателей</p></div><Link href="/admin/orders">Все заказы <ArrowUpRight size={15}/></Link></div>
+    <div className="adm-table-wrap"><table className="adm-table"><thead><tr><th>Номер</th><th>Покупатель</th><th>Сумма</th><th>Статус</th></tr></thead><tbody>{recentOrders.map(o=><tr key={o.id}><td><Link href={'/admin/orders?q='+encodeURIComponent(o.id)} className="adm-id">#{o.id.slice(-8)}</Link></td><td>{o.email}</td><td>{format(o.totalKopecks)}</td><td><span className={'adm-status '+o.status.toLowerCase()}>{o.status==='PENDING_PAYMENT'?'Ожидает оплаты':o.status==='PAID'?'Оплачен':o.status==='PROCESSING'?'В обработке':o.status==='FULFILLED'?'Выполнен':o.status==='CANCELLED'?'Отменён':'Возврат'}</span></td></tr>)}</tbody></table>{recentOrders.length===0&&<div className="adm-empty">Заказов пока нет. Они появятся здесь после оформления.</div>}</div></section>
+    <section className="adm-card"><div className="adm-card-head"><div><h2>Состояние магазина</h2><p>Подготовка к запуску</p></div></div><div className="adm-ops"><div><span>Каталог</span><strong>{activeProducts} активных</strong></div><div><span>Платежи</span><strong className="adm-warning">Не подключены</strong></div><div><span>Выдача товаров</span><strong className="adm-warning">Отключена</strong></div><div><span>Сумма подтверждённых заказов</span><strong>{format(paidRevenue._sum.totalKopecks||0)}</strong></div></div><p className="adm-hint">Администратор не может вручную отметить заказ оплаченным. Подтверждение потребует интеграции эквайринга.</p></section></div>
+  </>;
 }
