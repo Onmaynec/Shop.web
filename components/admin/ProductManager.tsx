@@ -1,5 +1,5 @@
 'use client';
-import { useState, type FormEvent } from 'react';
+import { useEffect, useState, type FormEvent } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Plus, Search, X, Pencil, Archive, ExternalLink, PackageOpen } from 'lucide-react';
 type Product={id:string;name:string;slug:string;description:string;categoryId:string;categoryName:string;priceKopecks:number;status:'DRAFT'|'ACTIVE'|'ARCHIVED';imageUrl:string|null};
@@ -14,6 +14,7 @@ export default function ProductManager({initialProducts,categories,total}:{initi
   const [search,setSearch]=useState(params.get('q')||'');
   const [status,setStatus]=useState(params.get('status')||'');
   const [items,setItems]=useState(initialProducts);
+  useEffect(()=>{setItems(initialProducts);setSearch(params.get('q')||'');setStatus(params.get('status')||'');},[initialProducts,params]);
   function filter(e:FormEvent){e.preventDefault();const query=new URLSearchParams();if(search.trim())query.set('q',search.trim());if(status)query.set('status',status);router.push('/admin/products'+(query.size?'?'+query.toString():''));}
   function edit(p:Product){setDraft({id:p.id,name:p.name,slug:p.slug,description:p.description,categoryId:p.categoryId,price:(p.priceKopecks/100).toFixed(2),status:p.status,imageUrl:p.imageUrl||''});setNotification(null);}
   async function save(e:FormEvent<HTMLFormElement>){e.preventDefault();if(!draft||busy)return;setBusy(true);setNotification(null);
