@@ -1,11 +1,12 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Layers3, ReceiptText, Users, ArrowUpRight, ShieldCheck, ScrollText } from 'lucide-react';
+import { LayoutDashboard, Package, Layers3, ReceiptText, Users, ArrowUpRight, ShieldCheck, ScrollText, PanelsTopLeft } from 'lucide-react';
 const links = [
   { href:'/admin', label:'Обзор', Icon:LayoutDashboard },
   { href:'/admin/products', label:'Товары', Icon:Package },
   { href:'/admin/categories', label:'Категории', Icon:Layers3 },
+  { href:'/admin/content', label:'Главная страница', Icon:PanelsTopLeft },
   { href:'/admin/orders', label:'Заказы', Icon:ReceiptText },
   { href:'/admin/customers', label:'Покупатели', Icon:Users },
   { href:'/admin/audit', label:'Аудит', Icon:ScrollText }
