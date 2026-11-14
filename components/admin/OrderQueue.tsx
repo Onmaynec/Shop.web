@@ -12,8 +12,8 @@ type QueueItem={
 const labels:Record<Status,string>={
   OPEN:'Ожидает',IN_PROGRESS:'В работе',BLOCKED:'Приостановлена',DONE:'Выполнена'
 };
-export default function OrderQueue({initial,actorId,total}:{
-  initial:QueueItem[];actorId:string;total:number
+export default function OrderQueue({initial,actorId,total,canViewOrders=false}:{
+  initial:QueueItem[];actorId:string;total:number;canViewOrders?:boolean
 }){
   const [items,setItems]=useState(initial);
   const [busy,setBusy]=useState<string|null>(null);
@@ -58,8 +58,8 @@ export default function OrderQueue({initial,actorId,total}:{
             <strong>{item.name}{item.variant?' · '+item.variant:''}</strong>
             <small>Количество: {item.quantity} · Заказ #{item.orderId.slice(-8)}
               {item.assignedTo?' · Исполнитель: '+item.assignedTo:''}</small>
-            <Link href={'/admin/orders?q='+encodeURIComponent(item.orderId)}>
-              Открыть заказ <ArrowUpRight size={13}/></Link>
+            {canViewOrders&&<Link href={'/admin/orders?q='+encodeURIComponent(item.orderId)}>
+              Открыть заказ <ArrowUpRight size={13}/></Link>}
           </div>
           <div className="adm-queue-controls">
             <select className="adm-field" value={item.status}
