@@ -96,3 +96,20 @@ npm run build
 **Не выполняйте `migrate resolve --applied 20261114000000_baseline` повторно**, если миграции уже были применены в v0.6.0. Не используйте `docker compose down -v`.
 
 Если файлы хранятся на внешнем диске, можно задать абсолютный путь через `MEDIA_STORAGE_DIR` в `.env`. Он должен быть доступен на запись серверному процессу Next.js. Для резервного копирования медиафайлов требуется отдельная процедура: дамп PostgreSQL содержит только адреса изображений.
+
+## Обновление v0.7.0 → v0.8.0
+
+Сохраните резервные копии PostgreSQL и локальных файлов. Директория `data/deliveries` или `PRIVATE_DELIVERY_DIR` **не включается в дамп PostgreSQL**, её нужно архивировать отдельно. Остановите Next.js и выполните из прежней папки:
+
+```cmd
+docker compose up -d
+npm ci
+npx prisma generate
+npm run db:migrate
+npm run db:status
+npm run dev
+```
+
+Миграция `20261114080000_order_management` добавляет `OrderActivity`, `OrderTask`, `OrderDelivery`, `CustomerNotification`. Для старых заказов создаётся запись о текущем статусе на момент миграции. Пользователи, товары, заказы и их стоимость не удаляются. **Не используйте `docker compose down -v`**.
+
+Доступ к выдаче файлов только у привязанного к заказу аккаунта, не по совпадению email. Подробнее в [ORDER-MANAGEMENT.md](ORDER-MANAGEMENT.md).
