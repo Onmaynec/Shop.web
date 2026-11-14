@@ -4,6 +4,8 @@ import { z } from 'zod';
 import { db } from '../../../lib/db';
 import { currentUser } from '../../../lib/auth';
 import { checkoutFingerprint, hashCheckoutKey, validCheckoutKey } from '../../../lib/checkout';
+import { takeRateLimit } from '../../../lib/rate-limit';
+import { ipLimit,limitResponse } from '../../../lib/http-security';
 
 export const runtime = 'nodejs';
 
@@ -61,6 +63,12 @@ export async function POST(request: Request) {
       }
       return reply(existing, true);
     }
+
+    // Rate limiting is AFTER the idempotency replay check: network retries are free.
+    const ipDenied=await ipLimit(request,'checkout-ip',60,3600);
+    if(ipDenied)return ipDenied;
+    const limited=limitResponse(await takeRateLimit('checkout-customer',user?.id||email,20,3600));
+    if(limited)return limited;
 
     const quantities = new Map<string,number>();
     for (const item of body.items) {
