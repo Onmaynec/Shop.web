@@ -27,6 +27,27 @@ enum UserRole {
   ADMIN
 }
 
+enum OrderTaskStatus {
+  OPEN
+  IN_PROGRESS
+  BLOCKED
+  DONE
+}
+
+enum OrderActivityKind {
+  STATUS
+  NOTE
+  MESSAGE
+  TASK
+  DELIVERY
+  PAYMENT
+}
+
+enum OrderActivityVisibility {
+  STAFF
+  CUSTOMER
+}
+
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
@@ -36,6 +57,9 @@ model User {
   orders       Order[]
   sessions     Session[]
   auditLogs    AuditLog[]
+  orderActivities OrderActivity[] @relation("OrderActivityAuthor")
+  assignedTasks    OrderTask[] @relation("OrderTaskAssignee")
+  notifications    CustomerNotification[]
 }
 
 model Category {
@@ -84,6 +108,10 @@ model Order {
   items               OrderItem[]
   paymentAttempts     PaymentAttempt[]
   paymentEvents       PaymentEvent[]
+  activities          OrderActivity[]
+  tasks               OrderTask[]
+  deliveries          OrderDelivery[]
+  notifications       CustomerNotification[]
 }
 
 model OrderItem {
@@ -99,6 +127,7 @@ model OrderItem {
   variant          ProductVariant? @relation(fields: [variantId], references: [id], onDelete: Restrict)
   skuSnapshot      String?
   variantSnapshot  String?
+  task             OrderTask?
 }
 
 model PaymentAttempt {
@@ -208,4 +237,70 @@ model StorefrontContent {
   backgroundUrl String?
   published     Boolean  @default(false)
   updatedAt     DateTime @updatedAt
+}
+
+model OrderActivity {
+  id          String                  @id @default(cuid())
+  orderId     String
+  order       Order                   @relation(fields: [orderId], references: [id], onDelete: Restrict)
+  authorId    String?
+  author      User?                   @relation("OrderActivityAuthor",fields:[authorId],references:[id],onDelete:SetNull)
+  kind        OrderActivityKind
+  visibility  OrderActivityVisibility @default(STAFF)
+  title       String
+  message     String?                 @db.Text
+  fromStatus  OrderStatus?
+  toStatus    OrderStatus?
+  createdAt   DateTime                @default(now())
+
+  @@index([orderId,createdAt])
+}
+
+model OrderTask {
+  id           String          @id @default(cuid())
+  orderId      String
+  order        Order           @relation(fields:[orderId],references:[id],onDelete:Restrict)
+  orderItemId  String          @unique
+  orderItem    OrderItem       @relation(fields:[orderItemId],references:[id],onDelete:Restrict)
+  status       OrderTaskStatus @default(OPEN)
+  assignedToId String?
+  assignedTo   User?           @relation("OrderTaskAssignee",fields:[assignedToId],references:[id],onDelete:SetNull)
+  dueAt        DateTime?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([status,updatedAt])
+  @@index([orderId,status])
+}
+
+model OrderDelivery {
+  id           String   @id @default(cuid())
+  orderId      String
+  order        Order    @relation(fields:[orderId],references:[id],onDelete:Restrict)
+  storageKey   String   @unique
+  originalName String
+  mime         String
+  bytes        Int
+  checksum     String
+  uploadedById String?
+  createdAt    DateTime @default(now())
+  releasedAt   DateTime?
+  revokedAt    DateTime?
+
+  @@index([orderId,releasedAt,revokedAt])
+}
+
+model CustomerNotification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields:[userId],references:[id],onDelete:Cascade)
+  orderId   String
+  order     Order    @relation(fields:[orderId],references:[id],onDelete:Restrict)
+  title     String
+  body      String
+  createdAt DateTime @default(now())
+  readAt    DateTime?
+
+  @@index([userId,readAt,createdAt])
+  @@index([orderId,createdAt])
 }
