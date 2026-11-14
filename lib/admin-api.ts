@@ -2,12 +2,13 @@ import { Prisma } from '@prisma/client';
 import { NextResponse } from 'next/server';
 import { ZodError } from 'zod';
 import { currentUser } from './auth';
+import { hasPermission,type Permission } from './permissions';
 import { requireSameOrigin, requireJson, readBoundedJson, inputError, RequestTooLargeError, limitResponse } from './http-security';
 import { takeRateLimit } from './rate-limit';
 
-export async function adminGate(request: Request, mutation = false) {
+export async function staffGate(request:Request,permission:Permission,mutation=false){
   const user = await currentUser();
-  if (!user || user.role !== 'ADMIN') {
+  if (!user || !hasPermission(user.role,permission)) {
     return NextResponse.json({ error: 'Требуются права администратора' }, { status: 403 });
   }
   if (mutation) {
@@ -17,6 +18,10 @@ export async function adminGate(request: Request, mutation = false) {
     if (limited) return limited;
   }
   return null;
+}
+
+export async function adminGate(request:Request,mutation=false){
+  return staffGate(request,'admin',mutation);
 }
 
 export async function readAdminBody(request: Request) {
