@@ -1,6 +1,7 @@
 import { Prisma } from '@prisma/client';
 import { db } from './db';
 import type { VerifiedPaymentEvent } from './payments';
+import { auditEntry } from './audit';
 
 export class PaymentEventConflict extends Error {
   constructor(message: string) { super(message); this.name = 'PaymentEventConflict'; }
@@ -10,7 +11,7 @@ export class PaymentEventConflict extends Error {
  * Processes only VERIFIED events. All state updates and the event record are
  * committed together. A replay with the same provider/eventId is a no-op.
  */
-export async function applyVerifiedPaymentEvent(event: VerifiedPaymentEvent):
+export async function applyVerifiedPaymentEvent(event: VerifiedPaymentEvent, options?: { adminActorId?: string }):
   Promise<{ outcome: 'applied' | 'duplicate'; orderId: string; status?: string }> {
   try {
     return await db.$transaction(async tx => {
@@ -65,6 +66,15 @@ export async function applyVerifiedPaymentEvent(event: VerifiedPaymentEvent):
           currency: event.currency
         }
       });
+      if(options?.adminActorId) {
+        await tx.auditLog.create({data:auditEntry({
+          actorId:options.adminActorId,
+          action:refund?'sandbox.refund':'sandbox.payment',
+          targetType:'order',
+          targetId:event.orderId,
+          details:{provider:event.provider,amountKopecks:event.amountKopecks}
+        })});
+      }
       return { outcome: 'applied' as const, orderId: event.orderId, status: refund ? 'REFUNDED' : 'PAID' };
     }, { timeout: 10000 });
   } catch (error) {
