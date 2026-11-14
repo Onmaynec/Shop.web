@@ -1,5 +1,5 @@
 import Link from 'next/link';
-import {notFound} from 'next/navigation';
+import {redirect} from 'next/navigation';
 import {ArrowLeft,Heart,ArrowUpRight} from 'lucide-react';
 import {currentUser} from '../../../lib/auth';
 import {db} from '../../../lib/db';
@@ -8,7 +8,7 @@ import FavoriteButton from '../../../components/FavoriteButton';
 export const dynamic='force-dynamic';
 const money=(v:number)=>(v/100).toLocaleString('ru-RU',{style:'currency',currency:'RUB'});
 export default async function Favorites(){
-  const user=await currentUser();if(!user)notFound();
+  const user=await currentUser();if(!user)redirect('/account');
   const favorites=await db.favorite.findMany({
     where:{userId:user.id},orderBy:{createdAt:'desc'},take:100,
     include:{product:{include:{
