@@ -108,6 +108,7 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/standoffshop-dev.log; exit 1; fi
           node tests/sandbox.mjs
+          node tests/order-management.mjs
 
   release:
     if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'release(v0.7.0)')
