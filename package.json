@@ -1,6 +1,6 @@
 {
   "name": "standoffshop",
-  "version": "0.5.0",
+  "version": "0.6.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -12,7 +12,10 @@
     "db:seed": "node prisma/seed.cjs",
     "test:smoke": "node tests/smoke.mjs",
     "test:sandbox": "node tests/sandbox.mjs",
-    "test:visual": "playwright test"
+    "test:visual": "playwright test",
+    "db:migrate": "prisma migrate deploy",
+    "db:status": "prisma migrate status",
+    "test:security": "node tests/security.mjs"
   },
   "dependencies": {
     "next": "^15.3.0",
