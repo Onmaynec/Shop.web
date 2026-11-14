@@ -106,6 +106,14 @@ async function run(){
     const main=await request('/catalog?category='+root.json.category.slug);
     assert.equal(main.status,200);
     assert.ok(main.json.content.includes(newProduct.name));
+    const composed=await request('/catalog?q=Catalog%20Test&min=500&max=1000&category='+child.json.category.slug);
+    assert.equal(composed.status,200);
+    assert.ok(composed.json.content.includes(newProduct.name),
+      'Search and price range should include an active matching variant');
+    const filteredOut=await request('/catalog?q=unrelated-name-xyz&min=500&max=1000&category='+child.json.category.slug);
+    assert.equal(filteredOut.status,200);
+    assert.ok(!filteredOut.json.content.includes(newProduct.name),
+      'Price range must not override the search query');
     const detail=await request('/product/'+newProduct.slug);
     assert.equal(detail.status,200);
     assert.ok(detail.json.content.includes('Базовый'));
