@@ -1,4 +1,5 @@
 import { db } from '../../../lib/db';
+import { Prisma } from '@prisma/client';
 import { currentUser } from '../../../lib/auth';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
@@ -10,9 +11,11 @@ export default async function QueuePage({searchParams}:{searchParams:Promise<{pa
   if(!actor||actor.role!=='ADMIN')notFound();
   const params=await searchParams;
   const page=Math.max(1,Math.min(10000,parseInt(params.page||'1',10)||1));
-  const where={status:{in:['OPEN','IN_PROGRESS','BLOCKED'] as const}};
-  // Filter explicitly to avoid a phantom queue entry for refunded orders.
-  const filter={...where,order:{status:{in:['PAID','PROCESSING'] as const}}};
+  // Only actionable paid orders appear; refunded orders never enter the queue.
+  const filter:Prisma.OrderTaskWhereInput={
+    status:{in:['OPEN','IN_PROGRESS','BLOCKED']},
+    order:{status:{in:['PAID','PROCESSING']}}
+  };
   const [total,tasks]=await Promise.all([
     db.orderTask.count({where:filter}),
     db.orderTask.findMany({
