@@ -27,16 +27,22 @@ export default async function Catalog({searchParams}:{searchParams:Promise<Searc
   const chosen=target?[target.id,...target.children.map(c=>c.id)]:[];
   const bound:Prisma.IntFilter={...(min!==undefined?{gte:min}:{}),...(max!==undefined?{lte:max}:{})};
   const hasBound=min!==undefined||max!==undefined;
+  const constraints:Prisma.ProductWhereInput[]=[];
+  if(q)constraints.push({OR:[
+    {name:{contains:q,mode:'insensitive'}},
+    {description:{contains:q,mode:'insensitive'}},
+    {sku:{contains:q,mode:'insensitive'}}
+  ]});
+  if(hasBound)constraints.push({OR:[
+    {variants:{none:{active:true}},priceKopecks:bound},
+    {variants:{some:{active:true,priceKopecks:bound}}}
+  ]});
   const where:Prisma.ProductWhereInput={
     status:'ACTIVE',
-    ...(q?{OR:[{name:{contains:q,mode:'insensitive'}},{description:{contains:q,mode:'insensitive'}},{sku:{contains:q,mode:'insensitive'}}]}:{}),
+    ...(constraints.length?{AND:constraints}:{}),
     ...(target?{categoryId:{in:chosen}}:{}),
     ...(category&&!target?{id:{in:[]}}:{}),
-    ...(tag?{tags:{has:tag}}:{}),
-    ...(hasBound?{OR:[
-      {variants:{none:{active:true}},priceKopecks:bound},
-      {variants:{some:{active:true,priceKopecks:bound}}}
-    ]}:{})
+    ...(tag?{tags:{has:tag}}:{})
   };
   const orderBy:Prisma.ProductOrderByWithRelationInput=sort==='price-asc'?{priceKopecks:'asc'}:
     sort==='price-desc'?{priceKopecks:'desc'}:sort==='title'?{name:'asc'}:{createdAt:'desc'};
