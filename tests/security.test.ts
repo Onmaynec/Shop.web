@@ -17,6 +17,7 @@ describe('account security',()=>{
     expect(checkPassword('password','f'.repeat(32)+':broken')).toBe(false);
   });
   it('never stores email addresses in plaintext rate-limit keys',()=>{
+    vi.stubEnv('SESSION_SECRET','unit-test-secret-with-at-least-32-random-characters');
     const hash=fingerprint('  User@Example.com ');
     expect(hash).toHaveLength(64);
     expect(hash).toBe(fingerprint('user@example.com'));
