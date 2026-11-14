@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { ArrowUpRight, Menu, Search, ShoppingBag, UserRound, X, Command } from 'lucide-react';
+import { ArrowUpRight, Menu, Search, ShoppingBag, UserRound, X, Command, Heart } from 'lucide-react';
 
 export default function SiteHeader() {
   const router = useRouter();
@@ -63,7 +63,7 @@ export default function SiteHeader() {
         <Link href="/" className="brand" aria-label="StandoffShop — главная">
           <span className="brand-mark" aria-hidden="true">S</span>
           <span>STANDOFF<span className="brand-thin">SHOP</span></span>
-          <span className="brand-version">/ 09 RC</span>
+          <span className="brand-version">/ 1.0</span>
         </Link>
 
         <nav className="desktop-nav" aria-label="Основное меню">
@@ -77,6 +77,7 @@ export default function SiteHeader() {
           <button className="search-trigger" type="button" onClick={() => setSearchOpen(true)} aria-label="Открыть поиск по каталогу">
             <Search size={16}/><span>Поиск...</span><kbd>Ctrl K</kbd>
           </button>
+          <Link href="/account/favorites" className="icon-link" aria-label="Избранные товары" title="Избранное"><Heart size={19}/></Link>
           <Link href="/cart" className="icon-link" aria-label={'Корзина: ' + cartCount + ' товаров'} title="Корзина">
             <ShoppingBag size={19}/>{cartCount > 0 && <span className="cart-counter">{cartCount > 99 ? '99+' : cartCount}</span>}
           </Link>
@@ -89,6 +90,7 @@ export default function SiteHeader() {
       {mobileOpen && <nav className="mobile-nav" aria-label="Мобильное меню">
         <Link href="/">Главная <ArrowUpRight size={16}/></Link>
         <Link href="/catalog">Каталог <ArrowUpRight size={16}/></Link>
+        <Link href="/account/favorites">Избранное <Heart size={16}/></Link>
         <Link href="/cart">Корзина <span>{cartCount}</span></Link>
         <Link href="/support">Поддержка <ArrowUpRight size={16}/></Link>
         <Link href="/account">Личный кабинет <ArrowUpRight size={16}/></Link>
