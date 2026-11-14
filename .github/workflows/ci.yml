@@ -44,6 +44,8 @@ jobs:
         run: npm test
       - name: Prepare test database
         run: npm run db:migrate
+      - name: Detect migration drift
+        run: npx prisma migrate diff --from-url "$DATABASE_URL" --to-schema-datamodel prisma/schema.prisma --exit-code
       - name: Build Next.js
         run: npm run build
       - name: Integration smoke test
