@@ -1,10 +1,12 @@
-import { createHash } from 'node:crypto';
+import { createHmac } from 'node:crypto';
 import { db } from './db';
 
 export type LimitResult = { allowed: boolean; retryAfter: number; remaining: number };
 
 export function fingerprint(value: string): string {
-  return createHash('sha256').update(value.toLowerCase().trim()).digest('hex');
+  const secret=process.env.SESSION_SECRET;
+  if(!secret || secret.length<32 || secret.startsWith('replace-with-')) throw new Error('SESSION_SECRET is not configured');
+  return createHmac('sha256',secret).update(value.toLowerCase().trim()).digest('hex');
 }
 
 /**
