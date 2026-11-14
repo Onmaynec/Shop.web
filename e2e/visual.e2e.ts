@@ -21,6 +21,9 @@ test('catalog, product and cart',async({page},testInfo)=>{
   await page.goto('/catalog');
   await expect(page.getByText('Анализ игрового матча')).toBeVisible();
   await screenshot(page,testInfo,'catalog');
+  await page.getByRole('combobox',{name:'Сортировка'}).selectOption('price-asc');
+  await page.getByRole('button',{name:'Применить'}).click();
+  await expect(page).toHaveURL(/sort=price-asc/);
   await page.getByRole('link',{name:/Анализ игрового матча/}).click();
   await expect(page.getByRole('heading',{name:'Анализ игрового матча'})).toBeVisible();
   await screenshot(page,testInfo,'product');
@@ -69,6 +72,9 @@ test('profile and admin UI',async({page},testInfo)=>{
   await page.goto('/admin/audit');
   await expect(page.getByRole('heading',{name:'Аудит действий'})).toBeVisible();
   await screenshot(page,testInfo,'admin-audit');
+  await page.goto('/admin/content');
+  await expect(page.getByRole('heading',{name:'Главная страница'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-content-editor');
 });
 
 test('responsive navigation',async({page,isMobile},testInfo)=>{
