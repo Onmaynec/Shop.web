@@ -31,7 +31,7 @@ export default async function QueuePage({searchParams}:{searchParams:Promise<{pa
   ]);
   const pages=Math.max(1,Math.ceil(total/30));
   return <>
-    <OrderQueue actorId={actor.id} total={total} initial={tasks.map(t=>({
+    <OrderQueue actorId={actor.id} canViewOrders={actor.role==='ADMIN'} total={total} initial={tasks.map(t=>({
       id:t.id,orderId:t.orderId,orderStatus:t.order.status,
       status:t.status,name:t.orderItem.nameSnapshot,variant:t.orderItem.variantSnapshot,
       quantity:t.orderItem.quantity,assignedToId:t.assignedToId,
