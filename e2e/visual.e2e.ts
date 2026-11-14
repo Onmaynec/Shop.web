@@ -39,6 +39,8 @@ test('catalog, product and cart',async({page},testInfo)=>{
 });
 
 test('profile and admin UI',async({page},testInfo)=>{
+  // This flow intentionally captures the entire signed-in back office, not a single screen.
+  test.setTimeout(150_000);
   await page.goto('/account');
   await expect(page.getByRole('heading',{name:'Личный кабинет'})).toBeVisible();
   await expect(page.getByRole('button',{name:'Войти в аккаунт'})).toBeVisible();
