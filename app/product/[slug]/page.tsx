@@ -1,5 +1,6 @@
 import { db } from '../../../lib/db';
 import { notFound } from 'next/navigation';
+import {currentUser} from '../../../lib/auth';
 import ProductView from '../../../components/catalog/ProductView';
 export const dynamic='force-dynamic';
 
@@ -14,5 +15,9 @@ export default async function ProductPage({params}:{params:Promise<{slug:string}
     }
   });
   if(!product||product.status!=='ACTIVE')notFound();
-  return <ProductView p={product}/>;
+  const user=await currentUser();
+  const favorite=user?await db.favorite.findUnique({
+    where:{userId_productId:{userId:user.id,productId:product.id}},select:{productId:true}
+  }):null;
+  return <ProductView p={product} signedIn={Boolean(user)} favorite={Boolean(favorite)}/>;
 }
