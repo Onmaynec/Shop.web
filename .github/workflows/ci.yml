@@ -41,7 +41,7 @@ jobs:
       - name: Unit tests
         run: npm test
       - name: Prepare test database
-        run: npm run db:push
+        run: npm run db:migrate
       - name: Build Next.js
         run: npm run build
       - name: Integration smoke test
@@ -54,6 +54,7 @@ jobs:
           done
           if [ "$ready" -ne 1 ]; then cat /tmp/standoffshop-next.log; exit 1; fi
           node tests/smoke.mjs
+          node tests/security.mjs
 
   sandbox:
     runs-on: ubuntu-latest
