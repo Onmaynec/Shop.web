@@ -1,11 +1,88 @@
 import { createHmac, randomBytes, scryptSync, timingSafeEqual } from 'node:crypto';
 import { cookies } from 'next/headers';
 import { db } from './db';
-const COOKIE='ss_session';
-function secret(){const value=process.env.SESSION_SECRET;if(!value||value.length<32)throw new Error('SESSION_SECRET must contain at least 32 characters');return value;}
-function sign(payload:string){return createHmac('sha256',secret()).update(payload).digest('hex');}
-export function hashPassword(password:string){const salt=randomBytes(16).toString('hex');return salt+':'+scryptSync(password,salt,64).toString('hex');}
-export function checkPassword(password:string,stored:string){const [salt,hex]=stored.split(':');if(!salt||!hex||hex.length!==128)return false;return timingSafeEqual(scryptSync(password,salt,64),Buffer.from(hex,'hex'));}
-export async function setSession(userId:string){const payload=Buffer.from(JSON.stringify({id:userId,expires:Date.now()+7*86400000})).toString('base64url');(await cookies()).set(COOKIE,payload+'.'+sign(payload),{httpOnly:true,secure:process.env.NODE_ENV==='production',sameSite:'lax',path:'/',maxAge:7*86400});}
-export async function clearSession(){(await cookies()).delete(COOKIE);}
-export async function currentUser(){try{const token=(await cookies()).get(COOKIE)?.value;if(!token)return null;const [payload,signature]=token.split('.');if(!payload||!signature||signature.length!==64)return null;if(!timingSafeEqual(Buffer.from(sign(payload),'hex'),Buffer.from(signature,'hex')))return null;const parsed=JSON.parse(Buffer.from(payload,'base64url').toString()) as {id:string;expires:number};if(parsed.expires<Date.now()||typeof parsed.id!=='string')return null;return db.user.findUnique({where:{id:parsed.id},select:{id:true,email:true,role:true}});}catch{return null;}}
+
+const COOKIE = 'ss_session';
+const SESSION_DAYS = 7;
+
+function secret() {
+  const value = process.env.SESSION_SECRET;
+  if (!value || value.length < 32 || value.startsWith('replace-with-')) {
+    throw new Error('Configure a unique SESSION_SECRET of at least 32 characters');
+  }
+  return value;
+}
+
+export function hashPassword(password: string) {
+  const salt = randomBytes(16).toString('hex');
+  return salt + ':' + scryptSync(password, salt, 64).toString('hex');
+}
+
+export function checkPassword(password: string, stored: string) {
+  const parts = stored.split(':');
+  if (parts.length !== 2 || !/^[0-9a-f]{32}$/.test(parts[0]) || !/^[0-9a-f]{128}$/.test(parts[1])) return false;
+  const expected = Buffer.from(parts[1], 'hex');
+  return timingSafeEqual(scryptSync(password, parts[0], 64), expected);
+}
+
+export function sessionTokenHash(token: string) {
+  return createHmac('sha256', secret()).update(token).digest('hex');
+}
+
+function cookieSettings() {
+  return {
+    httpOnly: true, sameSite: 'lax' as const,
+    secure: process.env.NODE_ENV === 'production',
+    path: '/', maxAge: SESSION_DAYS * 24 * 60 * 60
+  };
+}
+
+async function tokenFromCookie() {
+  const token = (await cookies()).get(COOKIE)?.value;
+  return token && /^[A-Za-z0-9_-]{43}$/.test(token) ? token : null;
+}
+
+export async function activeSession() {
+  const token = await tokenFromCookie();
+  if (!token) return null;
+  const session = await db.session.findUnique({
+    where: { tokenHash: sessionTokenHash(token) },
+    include: { user: { select: { id: true, email: true, role: true } } }
+  });
+  if (!session || session.revokedAt || session.expiresAt <= new Date()) return null;
+  // At most one activity write per session per 10 minutes.
+  if (Date.now() - session.lastSeenAt.getTime() > 600_000) {
+    await db.session.updateMany({
+      where: { id: session.id, revokedAt: null },
+      data: { lastSeenAt: new Date() }
+    });
+  }
+  return session;
+}
+
+export async function currentUser() {
+  const session = await activeSession();
+  return session ? session.user : null;
+}
+
+export async function setSession(userId: string) {
+  const token = randomBytes(32).toString('base64url');
+  await db.session.create({
+    data: {
+      userId, tokenHash: sessionTokenHash(token),
+      expiresAt: new Date(Date.now() + SESSION_DAYS * 86400_000)
+    }
+  });
+  (await cookies()).set(COOKIE, token, cookieSettings());
+}
+
+export async function clearSession() {
+  const token = await tokenFromCookie();
+  if (token) {
+    await db.session.updateMany({
+      where: { tokenHash: sessionTokenHash(token), revokedAt: null },
+      data: { revokedAt: new Date() }
+    });
+  }
+  (await cookies()).delete(COOKIE);
+}
