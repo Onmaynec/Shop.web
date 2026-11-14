@@ -17,7 +17,7 @@ export async function readinessChecks():Promise<ReadinessCheck[]>{
     const rows=await db.$queryRaw<Array<{migration_name:string}>>`
       SELECT migration_name FROM "_prisma_migrations" WHERE finished_at IS NOT NULL
     `;
-    migrations=rows.some(x=>x.migration_name==='20261114010000_platform_release');
+    migrations=rows.some(x=>x.migration_name==='20261114100000_platform_release');
   }catch{
     // Local visual test environments may use db push instead of migrations.
   }
