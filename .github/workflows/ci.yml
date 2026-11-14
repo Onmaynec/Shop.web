@@ -59,6 +59,7 @@ jobs:
           if [ "$ready" -ne 1 ]; then cat /tmp/standoffshop-next.log; exit 1; fi
           node tests/smoke.mjs
           node tests/security.mjs
+          node tests/catalog-pro.mjs
 
   sandbox:
     runs-on: ubuntu-latest
