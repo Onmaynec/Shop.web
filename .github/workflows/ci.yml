@@ -132,5 +132,6 @@ jobs:
             git push origin refs/tags/v0.8.0
           fi
           if ! gh release view v0.8.0 >/dev/null 2>&1; then
-            gh release create v0.8.0 --title 'StandoffShop v0.8.0 — Catalog Pro' --notes-file docs/RELEASE-0.8.0.md
+            gh release create v0.8.0 --title 'StandoffShop v0.8.0 — Order Management 2.0' --notes-file docs/RELEASE-0.8.0.md
           fi
+          gh release edit v0.8.0 --title 'StandoffShop v0.8.0 — Order Management 2.0'
