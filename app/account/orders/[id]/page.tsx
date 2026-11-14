@@ -61,6 +61,7 @@ export default async function CustomerOrder({params}:{params:Promise<{id:string}
         {!order.activities.length&&<p className="muted">История пока не сформирована.</p>}
       </section>
     </div>
+    <p className="muted">Нужна помощь? <Link href={'/support?order='+order.id}>Создать обращение по этому заказу</Link></p>
     <p className="product-alert">Сейчас в магазине нет реального эквайринга. Тестовые оплаты и тестовые файлы не означают реальную покупку.</p>
   </main>;
 }
