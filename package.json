@@ -1,6 +1,6 @@
 {
   "name": "standoffshop",
-  "version": "0.9.0-rc.1",
+  "version": "1.0.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -19,7 +19,8 @@
     "test:catalog": "node tests/catalog-pro.mjs",
     "test:orders": "node tests/order-management.mjs",
     "test:operations": "node tests/operations-support.mjs",
-    "test:workforce": "node tests/workforce.mjs"
+    "test:workforce": "node tests/workforce.mjs",
+    "test:platform": "node tests/platform.mjs"
   },
   "dependencies": {
     "next": "15.5.29",
