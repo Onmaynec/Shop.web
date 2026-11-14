@@ -22,8 +22,7 @@
     "react": "^19.2.1",
     "react-dom": "^19.2.1",
     "@prisma/client": "^6.5.0",
-    "prisma": "^6.5.0",
-    "zod": "^3.24.0",
+    "zod": "^4.6.7",
     "lucide-react": "^0.468.0"
   },
   "devDependencies": {
@@ -32,6 +31,10 @@
     "@types/react": "^19.0.0",
     "@types/react-dom": "^19.0.0",
     "vitest": "^3.2.4",
-    "@playwright/test": "^1.56.0"
+    "@playwright/test": "^1.56.0",
+    "prisma": "^6.5.0"
+  },
+  "overrides": {
+    "postcss": "8.5.32"
   }
 }
