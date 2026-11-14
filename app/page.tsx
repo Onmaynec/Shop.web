@@ -1,4 +1,7 @@
 import Link from 'next/link';
+import { db } from '../lib/db';
+import { defaultHome } from '../lib/storefront-content';
+export const dynamic='force-dynamic';
 import { ArrowRight, ArrowUpRight, Layers3, ShieldCheck, CreditCard, UserRound } from 'lucide-react';
 
 const features = [
@@ -7,17 +10,21 @@ const features = [
   {number:'03',title:'Готовность к оплате',description:'Платёжная архитектура подготовлена. Реальные списания пока отключены.',Icon:CreditCard},
 ];
 
-export default function Home() {
+export default async function Home() {
+  const stored=await db.storefrontContent.findUnique({where:{key:'home'}});
+  const hero=stored?.published?stored:defaultHome;
+  const destination=['/catalog','/account','/cart'].includes(hero.ctaHref)?hero.ctaHref:'/catalog';
   return <main className="home">
     <section className="home-hero">
       <div className="hero-inner">
+        {hero.backgroundUrl&&<div className="hero-art-wrapper"><img className="hero-art" src={hero.backgroundUrl} alt="" aria-hidden="true"/></div>}
         <div className="hero-outline" aria-hidden="true">STANDOFF</div>
         <div className="hero-copy">
-          <div className="eyebrow hero-eyebrow"><span className="tiny-square"/> DIGITAL MARKETPLACE / STANDOFF 2</div>
-          <h1>Игровые товары.<br/><span>Без лишнего.</span></h1>
-          <p>Один магазин для цифровых товаров и услуг. Минималистичный интерфейс, понятный каталог и контроль каждого заказа.</p>
+          <div className="eyebrow hero-eyebrow"><span className="tiny-square"/> {hero.eyebrow}</div>
+          <h1>{hero.headline}<br/><span>{hero.subheadline}</span></h1>
+          <p>{hero.description}</p>
           <div className="hero-buttons">
-            <Link href="/catalog" className="button button-light">Открыть каталог <ArrowUpRight size={17}/></Link>
+            <Link href={destination} className="button button-light">{hero.ctaLabel} <ArrowUpRight size={17}/></Link>
             <Link href="/account" className="button button-ghost">Личный кабинет <ArrowRight size={17}/></Link>
           </div>
           <div className="hero-footnote"><span className="pulse-dot"/> DEMO ENVIRONMENT <span className="hero-footnote-line"/> Платежи не подключены</div>
