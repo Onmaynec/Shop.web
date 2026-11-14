@@ -36,3 +36,17 @@ ALTER TABLE "Category" ADD CONSTRAINT "Category_parentId_fkey" FOREIGN KEY ("par
 ALTER TABLE "ProductImage" ADD CONSTRAINT "ProductImage_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE CASCADE ON UPDATE CASCADE;
 ALTER TABLE "ProductVariant" ADD CONSTRAINT "ProductVariant_productId_fkey" FOREIGN KEY ("productId") REFERENCES "Product"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
 ALTER TABLE "OrderItem" ADD CONSTRAINT "OrderItem_variantId_fkey" FOREIGN KEY ("variantId") REFERENCES "ProductVariant"("id") ON DELETE RESTRICT ON UPDATE CASCADE;
+
+CREATE TABLE "StorefrontContent" (
+    "key" TEXT NOT NULL,
+    "headline" TEXT NOT NULL,
+    "subheadline" TEXT NOT NULL,
+    "description" TEXT NOT NULL,
+    "eyebrow" TEXT NOT NULL,
+    "ctaLabel" TEXT NOT NULL,
+    "ctaHref" TEXT NOT NULL,
+    "backgroundUrl" TEXT,
+    "published" BOOLEAN NOT NULL DEFAULT false,
+    "updatedAt" TIMESTAMP(3) NOT NULL,
+    CONSTRAINT "StorefrontContent_pkey" PRIMARY KEY ("key")
+);
