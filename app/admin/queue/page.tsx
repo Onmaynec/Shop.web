@@ -1,6 +1,7 @@
 import { db } from '../../../lib/db';
 import { Prisma } from '@prisma/client';
 import { currentUser } from '../../../lib/auth';
+import {hasPermission} from '../../../lib/permissions';
 import { notFound } from 'next/navigation';
 import Link from 'next/link';
 import OrderQueue from '../../../components/admin/OrderQueue';
@@ -8,7 +9,7 @@ import OrderQueue from '../../../components/admin/OrderQueue';
 export const dynamic='force-dynamic';
 export default async function QueuePage({searchParams}:{searchParams:Promise<{page?:string}>}){
   const actor=await currentUser();
-  if(!actor||actor.role!=='ADMIN')notFound();
+  if(!actor||!hasPermission(actor.role,'fulfillment'))notFound();
   const params=await searchParams;
   const page=Math.max(1,Math.min(10000,parseInt(params.page||'1',10)||1));
   // Only actionable paid orders appear; refunded orders never enter the queue.
