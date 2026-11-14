@@ -89,7 +89,9 @@ async function run(){
     assert.deepEqual(product.tags,['Тренировка','Разбор']);
     assert.equal(product.sku,newProduct.sku);
     const inactive=await request('/product/'+newProduct.slug);
-    assert.equal(inactive.status,404);
+    // Next.js may respond 200 for a streamed notFound boundary; validate rendered 404 content as well.
+    assert.ok(inactive.status===404 || (inactive.status===200 && inactive.json.content.includes('Такой страницы нет')),
+      'A draft must render the not-found page, not product details');
     const preview=await request('/admin/preview/'+productId);
     assert.equal(preview.status,200);
 
