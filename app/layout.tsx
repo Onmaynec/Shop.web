@@ -19,7 +19,7 @@ export default function RootLayout({children}:{children:React.ReactNode}) {
         <div className="footer-menu"><span>Навигация</span><Link href="/catalog">Каталог <ArrowUpRight size={13}/></Link><Link href="/cart">Корзина <ArrowUpRight size={13}/></Link><Link href="/account">Личный кабинет <ArrowUpRight size={13}/></Link></div>
         <div className="footer-menu"><span>StandoffShop</span><p>Сейчас доступно создание тестовых заказов. Подключение эквайринга запланировано отдельно.</p></div>
       </div>
-      <div className="footer-bottom"><span>© 2026 StandoffShop</span><span>Independent digital marketplace · v0.8.0</span><span>RU / RUB</span></div>
+      <div className="footer-bottom"><span>© 2026 StandoffShop</span><span>Independent digital marketplace · v0.9.0-rc.1</span><span>RU / RUB</span></div>
     </footer>
   </body></html>;
 }
