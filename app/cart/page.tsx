@@ -4,7 +4,8 @@ import Link from 'next/link';
 import { useEffect, useState, type FormEvent } from 'react';
 import { ShoppingBag, Trash2, Minus, Plus, LockKeyhole, CheckCircle2, ArrowRight } from 'lucide-react';
 
-type CartItem = {productId:string;name:string;priceKopecks:number;quantity:number};
+type CartItem = {productId:string;variantId?:string|null;name:string;priceKopecks:number;quantity:number};
+const keyFor=(item:CartItem)=>item.productId+'|'+(item.variantId||'base');
 type CompletedOrder = {id:string;status:string;totalKopecks:number;reused:boolean};
 const CART_KEY='standoffshop_cart_v1';
 const REQUEST_KEY='standoffshop_checkout_key_v1';
@@ -21,7 +22,7 @@ export default function Cart(){
     try{
       const data=JSON.parse(localStorage.getItem(CART_KEY)||'[]');
       if(Array.isArray(data))setItems(data.filter(i=>
-        typeof i.productId==='string'&&typeof i.name==='string'&&
+        typeof i.productId==='string'&&(i.variantId===undefined||i.variantId===null||typeof i.variantId==='string')&&typeof i.name==='string'&&
         Number.isInteger(i.priceKopecks)&&i.priceKopecks>=0&&
         Number.isInteger(i.quantity)&&i.quantity>=1&&i.quantity<=20
       ));
@@ -50,7 +51,7 @@ export default function Cart(){
         headers:{'Content-Type':'application/json','Idempotency-Key':idempotencyKey},
         body:JSON.stringify({
           email:email.trim(),
-          items:items.map(({productId,quantity})=>({productId,quantity}))
+          items:items.map(({productId,variantId,quantity})=>({productId,variantId:variantId||null,quantity}))
         })
       });
       const data=await response.json().catch(()=>null);
@@ -86,12 +87,12 @@ export default function Cart(){
       <section className="cart-empty"><ShoppingBag size={46}/><h2>Здесь пока пусто</h2><p>Загляните в каталог и выберите то, что вам нужно.</p><Link href="/catalog" className="button">Перейти в каталог <ArrowRight size={17}/></Link></section>:
       <div className="cart-layout"><section className="cart-list">
         <div className="cart-panel-heading"><h2>Товары</h2><span>{items.length} позиций</span></div>
-        {items.map(item=><div className="cart-item" key={item.productId}>
+        {items.map(item=><div className="cart-item" key={keyFor(item)}>
           <div className="cart-item-icon"><ShoppingBag size={24}/></div>
           <div className="cart-item-main"><strong>{item.name}</strong><small>{money(item.priceKopecks)} за единицу (предварительно)</small></div>
-          <div className="cart-quantity"><button aria-label={'Уменьшить количество '+item.name} onClick={()=>item.quantity>1&&save(items.map(i=>i.productId===item.productId?{...i,quantity:i.quantity-1}:i))}><Minus size={15}/></button><span>{item.quantity}</span><button aria-label={'Увеличить количество '+item.name} onClick={()=>item.quantity<20&&save(items.map(i=>i.productId===item.productId?{...i,quantity:i.quantity+1}:i))}><Plus size={15}/></button></div>
+          <div className="cart-quantity"><button aria-label={'Уменьшить количество '+item.name} onClick={()=>item.quantity>1&&save(items.map(i=>keyFor(i)===keyFor(item)?{...i,quantity:i.quantity-1}:i))}><Minus size={15}/></button><span>{item.quantity}</span><button aria-label={'Увеличить количество '+item.name} onClick={()=>item.quantity<20&&save(items.map(i=>i.productId===item.productId?{...i,quantity:i.quantity+1}:i))}><Plus size={15}/></button></div>
           <strong className="cart-item-total">{money(item.priceKopecks*item.quantity)}</strong>
-          <button className="cart-remove" aria-label={'Удалить '+item.name} onClick={()=>save(items.filter(i=>i.productId!==item.productId))}><Trash2 size={17}/></button>
+          <button className="cart-remove" aria-label={'Удалить '+item.name} onClick={()=>save(items.filter(i=>keyFor(i)!==keyFor(item)))}><Trash2 size={17}/></button>
         </div>)}
       </section>
       <aside className="cart-checkout"><div className="cart-panel-heading"><h2>Оформление</h2></div><div className="cart-sum"><span>Предварительная сумма</span><strong>{money(subtotal)}</strong></div>
