@@ -118,7 +118,16 @@ export async function POST(request: Request) {
       const order=await db.order.create({
         data:{
           email,userId:user?.id,idempotencyKeyHash,requestHash,totalKopecks:total,
-          items:{create:lines}
+          items:{create:lines},
+          activities:{create:{
+            kind:'STATUS',visibility:'CUSTOMER',title:'Заказ создан',
+            message:'Заказ ожидает подтверждения оплаты. Реальный платёжный провайдер пока не подключён.',
+            toStatus:'PENDING_PAYMENT'
+          }},
+          ...(user?{notifications:{create:{
+            userId:user.id,title:'Заказ создан',
+            body:'Заказ зарегистрирован и ожидает подтверждения оплаты.'
+          }}}:{})
         },
         select:{id:true,status:true,totalKopecks:true}
       });
