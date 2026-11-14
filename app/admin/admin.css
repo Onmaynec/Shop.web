@@ -108,3 +108,39 @@
 
 /* v0.6.0 / Administrator security journal */
 .audit-detail{max-width:300px;white-space:normal!important;overflow-wrap:anywhere;font-family:ui-monospace,monospace;font-size:11px!important;color:#aaa!important}
+
+/* v0.7.0 / Catalog Pro admin */
+.adm-product-editor{width:min(940px,calc(100vw - 36px));max-height:min(92vh,1040px)}
+.adm-product-editor .adm-form{gap:16px 18px}
+.adm-editor-section{border-bottom:1px solid #333;padding-bottom:12px;color:#e6e6e6;margin:7px 0 2px;font-size:17px;font-weight:620}
+.adm-editor-heading{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;margin:15px 0 0;border-bottom:1px solid #303030;padding-bottom:14px}
+.adm-editor-heading h3{font-size:16px;margin:0;color:#e2e2e2;font-weight:650}
+.adm-upload-button{display:inline-flex!important;flex-direction:row!important;gap:9px!important;align-items:center!important;background:#e8e8e8;border:1px solid #fff;color:#090909!important;border-radius:8px;padding:10px 13px;cursor:pointer;font-size:12px;font-weight:700}
+.adm-image-edit{display:grid;grid-template-columns:100px minmax(0,1fr) auto;gap:13px;align-items:center;background:#101010;padding:10px;border:1px solid #292929;border-radius:8px}
+.adm-image-edit>div:nth-child(2){min-width:0;display:grid;gap:9px}
+.adm-image-preview{width:100px;height:84px;border-radius:7px;overflow:hidden;background:#1b1b1b;border:1px solid #373737}
+.adm-image-preview img{width:100%;height:100%;object-fit:cover}
+.adm-editor-arrows{display:flex;flex-direction:column;gap:5px}
+.adm-editor-arrows .adm-btn{min-height:25px;padding:4px 8px;justify-content:center}
+.adm-add-line{justify-self:start}
+.adm-spec-row{display:grid;grid-template-columns:1fr 1fr 39px;gap:10px}
+.adm-variant-row{display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr) 120px 100px 38px;gap:11px;align-items:end;padding:12px;background:#101010;border:1px solid #303030;border-radius:9px}
+.adm-variant-row>label{min-width:0}
+.adm-variant-row .adm-switch{flex-direction:row;align-items:center;min-height:40px;gap:6px}
+.adm-variant-row .adm-switch input{width:16px;height:16px}
+.adm-product-extra{display:flex;gap:12px;flex-wrap:wrap;margin-top:15px;color:#929292;font-size:11px}
+.adm-product-extra span{display:inline-flex;align-items:center;gap:5px}
+.adm-product-check{position:absolute;right:12px;top:12px;border:1px solid #555;border-radius:6px;background:#090909cb;padding:6px;display:grid;place-items:center;z-index:1}
+.adm-product-check input{height:16px;width:16px;cursor:pointer}
+.adm-bulk{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:19px;padding:13px 17px;border:1px solid #2d2d2d;border-radius:10px;background:#0b0b0b}
+.adm-bulk label{display:flex;align-items:center;gap:9px;font-size:12px;color:#aaa;margin-right:12px;cursor:pointer}
+.adm-bulk input{width:16px;height:16px}
+.category-group+.category-group{border-top:1px solid #2a2a2a}
+.category-group .adm-record:last-child{border-bottom:0}
+.adm-record.category-nested{padding-left:50px;background:#0e0e0e;border-top:1px solid #222}
+.category-record-title{display:flex;gap:11px;align-items:center}
+.category-record-title svg{color:#777}
+.category-record-info{min-width:0}
+.category-record-info small{overflow-wrap:anywhere}
+@media(max-width:1000px){.adm-variant-row{grid-template-columns:repeat(2,minmax(0,1fr))}.adm-variant-row .adm-switch{grid-column:1}}
+@media(max-width:650px){.adm-product-editor{width:calc(100vw - 16px)}.adm-product-editor .adm-form{grid-template-columns:1fr;padding:16px}.adm-image-edit{grid-template-columns:70px minmax(0,1fr)}.adm-image-preview{width:70px;height:70px}.adm-editor-arrows{grid-column:1/-1;flex-direction:row}.adm-spec-row{grid-template-columns:1fr 1fr 35px}.adm-variant-row{grid-template-columns:1fr}.adm-bulk{gap:7px}.adm-record.category-nested{padding-left:29px}}
