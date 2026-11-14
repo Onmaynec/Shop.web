@@ -2,6 +2,7 @@ import { Prisma } from '@prisma/client';
 import { db } from './db';
 import type { VerifiedPaymentEvent } from './payments';
 import { auditEntry } from './audit';
+import { addCustomerNotification,statusTitle } from './order-operations';
 
 export class PaymentEventConflict extends Error {
   constructor(message: string) { super(message); this.name = 'PaymentEventConflict'; }
@@ -65,6 +66,41 @@ export async function applyVerifiedPaymentEvent(event: VerifiedPaymentEvent, opt
           paymentAttemptId: attempt.id, amountKopecks: event.amountKopecks,
           currency: event.currency
         }
+      });
+      // Side effects are transaction-bound. Replayed webhooks never duplicate tasks,
+      // timeline entries or customer notifications.
+      await tx.orderActivity.create({data:{
+        orderId:event.orderId,authorId:options?.adminActorId||null,
+        kind:'PAYMENT',visibility:'CUSTOMER',
+        title:refund?'Возврат подтверждён':'Платёж подтверждён',
+        message:event.provider==='sandbox'
+          ?'Тестовая операция без реального списания средств':'Подтверждение платёжного провайдера',
+        fromStatus:attempt.order.status,toStatus:refund?'REFUNDED':'PAID'
+      }});
+      if(refund){
+        await tx.orderTask.updateMany({
+          where:{orderId:event.orderId,status:{not:'DONE'}},
+          data:{status:'BLOCKED'}
+        });
+        await tx.orderDelivery.updateMany({
+          where:{orderId:event.orderId,revokedAt:null},
+          data:{revokedAt:new Date()}
+        });
+      }else{
+        const items=await tx.orderItem.findMany({
+          where:{orderId:event.orderId},select:{id:true}
+        });
+        await tx.orderTask.createMany({
+          data:items.map(item=>({orderId:event.orderId,orderItemId:item.id,status:'OPEN'})),
+          skipDuplicates:true
+        });
+      }
+      await addCustomerNotification(tx,{
+        orderId:event.orderId,userId:attempt.order.userId,
+        title:statusTitle(refund?'REFUNDED':'PAID'),
+        body:refund?'Возврат зарегистрирован. Выдача файлов отозвана.':
+          event.provider==='sandbox'?'Тестовая оплата подтверждена — деньги не списаны.':
+            'Получено подтверждение оплаты заказа.'
       });
       if(options?.adminActorId) {
         await tx.auditLog.create({data:auditEntry({
