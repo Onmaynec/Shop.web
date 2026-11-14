@@ -13,6 +13,7 @@ const schema = z.object({
   email: z.string().trim().email().max(254),
   items: z.array(z.object({
     productId: z.string().cuid(),
+    variantId: z.string().cuid().nullable().optional(),
     quantity: z.number().int().min(1).max(20)
   }).strict()).min(1).max(30)
 }).strict();
@@ -70,31 +71,54 @@ export async function POST(request: Request) {
     const limited=limitResponse(await takeRateLimit('checkout-customer',user?.id||email,20,3600));
     if(limited)return limited;
 
-    const quantities = new Map<string,number>();
-    for (const item of body.items) {
-      quantities.set(item.productId,(quantities.get(item.productId)||0)+item.quantity);
+    const quantities=new Map<string,{productId:string;variantId:string|null;quantity:number}>();
+    for(const item of body.items){
+      const variantId=item.variantId||null;
+      const key=JSON.stringify([item.productId,variantId]);
+      const previous=quantities.get(key);
+      quantities.set(key,{
+        productId:item.productId,variantId,quantity:(previous?.quantity||0)+item.quantity
+      });
     }
-    if ([...quantities.values()].some(q=>q>20)) {
+    if([...quantities.values()].some(line=>line.quantity>20)){
       return NextResponse.json({error:'Недопустимое количество'}, {status:400});
     }
-    const products = await db.product.findMany({
-      where:{id:{in:[...quantities.keys()]},status:'ACTIVE'}
+
+    const products=await db.product.findMany({
+      where:{id:{in:[...new Set([...quantities.values()].map(i=>i.productId))]},status:'ACTIVE'},
+      include:{variants:{where:{active:true}}}
     });
-    if (products.length!==quantities.size) {
-      return NextResponse.json({error:'Некоторые товары недоступны'}, {status:400});
+    const byId=new Map(products.map(p=>[p.id,p]));
+    const lines=[] as {
+      productId:string;variantId:string|null;nameSnapshot:string;
+      skuSnapshot:string|null;variantSnapshot:string|null;
+      unitPriceKopecks:number;quantity:number
+    }[];
+    for(const item of quantities.values()){
+      const p=byId.get(item.productId);
+      if(!p)return NextResponse.json({error:'Некоторые товары недоступны'},{status:400});
+      const variant=item.variantId?p.variants.find(v=>v.id===item.variantId):null;
+      if(item.variantId&&!variant)return NextResponse.json({error:'Вариант товара недоступен'},{status:400});
+      if(!item.variantId&&p.variants.length)return NextResponse.json({
+        error:'Выберите вариант товара'
+      },{status:400});
+      lines.push({
+        productId:p.id,variantId:variant?.id||null,nameSnapshot:p.name,
+        skuSnapshot:variant?.sku||p.sku||null,
+        variantSnapshot:variant?.label||null,
+        unitPriceKopecks:variant?.priceKopecks??p.priceKopecks,
+        quantity:item.quantity
+      });
     }
-    const total=products.reduce((sum,p)=>sum+p.priceKopecks*quantities.get(p.id)!,0);
-    if (!Number.isSafeInteger(total)||total<=0) {
+    const total=lines.reduce((sum,line)=>sum+line.unitPriceKopecks*line.quantity,0);
+    if(!Number.isSafeInteger(total)||total<=0){
       return NextResponse.json({error:'Некорректная стоимость'}, {status:400});
     }
     try {
       const order=await db.order.create({
         data:{
           email,userId:user?.id,idempotencyKeyHash,requestHash,totalKopecks:total,
-          items:{create:products.map(p=>({
-            productId:p.id,nameSnapshot:p.name,
-            unitPriceKopecks:p.priceKopecks,quantity:quantities.get(p.id)!
-          }))}
+          items:{create:lines}
         },
         select:{id:true,status:true,totalKopecks:true}
       });
