@@ -34,6 +34,8 @@ model User {
   role         UserRole @default(CUSTOMER)
   createdAt    DateTime @default(now())
   orders       Order[]
+  sessions     Session[]
+  auditLogs    AuditLog[]
 }
 
 model Category {
@@ -118,4 +120,40 @@ model PaymentEvent {
 
   @@unique([provider, eventId])
   @@index([orderId, createdAt])
+}
+
+model Session {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  tokenHash  String    @unique
+  createdAt  DateTime  @default(now())
+  lastSeenAt DateTime  @default(now())
+  expiresAt  DateTime
+  revokedAt  DateTime?
+
+  @@index([userId, revokedAt])
+  @@index([expiresAt])
+}
+
+model RateLimitBucket {
+  key     String   @id
+  attempts Int
+  resetAt DateTime
+
+  @@index([resetAt])
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String?
+  actor      User?    @relation(fields: [actorId], references: [id], onDelete: SetNull)
+  action     String
+  targetType String
+  targetId   String?
+  details    Json?
+  createdAt  DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([actorId, createdAt])
 }
