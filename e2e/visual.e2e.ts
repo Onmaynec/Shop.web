@@ -44,6 +44,11 @@ test('profile and admin UI',async({page},testInfo)=>{
   await page.getByLabel('Пароль').fill('VisualTestingPassword_123');
   await page.getByRole('button',{name:'Войти в аккаунт'}).click();
   await expect(page.getByRole('link',{name:/Панель управления/})).toBeVisible();
+  await page.goto('/account/security');
+  await expect(page.getByRole('heading',{name:'Безопасность аккаунта'})).toBeVisible();
+  await expect(page.getByRole('heading',{name:/Активные сессии/})).toBeVisible();
+  await screenshot(page,testInfo,'account-security');
+  await page.goto('/account');
   await page.getByRole('link',{name:/Панель управления/}).click();
   await expect(page.getByRole('heading',{name:'Панель управления'})).toBeVisible();
   await screenshot(page,testInfo,'admin-dashboard');
@@ -61,6 +66,9 @@ test('profile and admin UI',async({page},testInfo)=>{
   await page.goto('/admin/customers');
   await expect(page.getByRole('heading',{name:'Пользователи'})).toBeVisible();
   await screenshot(page,testInfo,'admin-customers');
+  await page.goto('/admin/audit');
+  await expect(page.getByRole('heading',{name:'Аудит действий'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-audit');
 });
 
 test('responsive navigation',async({page,isMobile},testInfo)=>{
