@@ -62,7 +62,15 @@ export async function activeSession() {
 
 export async function currentUser() {
   const session = await activeSession();
-  return session ? session.user : null;
+  if(!session)return null;
+  // Optional deployment policy: staff accounts must enroll MFA before using privileged routes.
+  // Their regular session stays valid so /account/security remains accessible for setup.
+  if(process.env.ENFORCE_STAFF_MFA==='true'&&session.user.role!=='CUSTOMER'){
+    const factor=await db.user.findUnique({where:{id:session.userId},
+      select:{mfaEnabledAt:true}});
+    if(!factor?.mfaEnabledAt)return {...session.user,role:'CUSTOMER' as const};
+  }
+  return session.user;
 }
 
 export async function setSession(userId: string) {
