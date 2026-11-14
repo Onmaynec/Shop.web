@@ -4,7 +4,7 @@ import { usePathname } from 'next/navigation';
 import type {UserRole} from '@prisma/client';
 import { hasPermission,staffLanding,type Permission } from '../../lib/permissions';
 import { LayoutDashboard,Package,Layers3,ReceiptText,Users,ArrowUpRight,
-  ShieldCheck,ScrollText,PanelsTopLeft,ClipboardList,Headset,UserCog,ChartNoAxesCombined } from 'lucide-react';
+  ShieldCheck,ScrollText,PanelsTopLeft,ClipboardList,Headset,UserCog,ChartNoAxesCombined,Activity } from 'lucide-react';
 const links:{href:string;label:string;Icon:typeof LayoutDashboard;permission:Permission}[]=[
   {href:'/admin',label:'Обзор',Icon:LayoutDashboard,permission:'admin'},
   {href:'/admin/products',label:'Товары',Icon:Package,permission:'admin'},
@@ -15,6 +15,7 @@ const links:{href:string;label:string;Icon:typeof LayoutDashboard;permission:Per
   {href:'/admin/support',label:'Обращения',Icon:Headset,permission:'support'},
   {href:'/admin/operations',label:'Операции и отчёты',Icon:ChartNoAxesCombined,permission:'admin'},
   {href:'/admin/staff',label:'Сотрудники',Icon:UserCog,permission:'admin'},
+  {href:'/admin/readiness',label:'Готовность',Icon:Activity,permission:'admin'},
   {href:'/admin/customers',label:'Покупатели',Icon:Users,permission:'admin'},
   {href:'/admin/audit',label:'Аудит',Icon:ScrollText,permission:'admin'}
 ];
