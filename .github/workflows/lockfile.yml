@@ -28,3 +28,5 @@ jobs:
             git commit -m 'build: lock dependencies for StandoffShop v0.6.0'
             git push origin HEAD:main
           fi
+
+# Lockfile generated from the audited v0.6.0 dependency graph.
