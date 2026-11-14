@@ -51,6 +51,10 @@ test('profile and admin UI',async({page},testInfo)=>{
   await expect(page.getByRole('heading',{name:'Безопасность аккаунта'})).toBeVisible();
   await expect(page.getByRole('heading',{name:/Активные сессии/})).toBeVisible();
   await screenshot(page,testInfo,'account-security');
+  await expect(page.getByRole('heading',{name:'Двухфакторная аутентификация'})).toBeVisible();
+  await page.goto('/account/favorites');
+  await expect(page.getByRole('heading',{name:'Избранное'})).toBeVisible();
+  await screenshot(page,testInfo,'account-favorites');
   await page.goto('/account/notifications');
   await expect(page.getByRole('heading',{name:'Сообщения магазина'})).toBeVisible();
   await screenshot(page,testInfo,'account-notifications');
@@ -81,6 +85,9 @@ test('profile and admin UI',async({page},testInfo)=>{
   await page.goto('/admin/operations');
   await expect(page.getByRole('heading',{name:'Операционная аналитика'})).toBeVisible();
   await screenshot(page,testInfo,'admin-operations');
+  await page.goto('/admin/readiness');
+  await expect(page.getByRole('heading',{name:'Готовность магазина'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-launch-readiness');
   await page.goto('/support');
   await expect(page.getByRole('heading',{name:'Центр поддержки'})).toBeVisible();
   await screenshot(page,testInfo,'customer-support');
