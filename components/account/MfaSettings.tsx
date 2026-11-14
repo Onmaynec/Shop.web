@@ -40,7 +40,7 @@ export default function MfaSettings(){
     }catch(e){setError(e instanceof Error?e.message:'Ошибка');}
     finally{setBusy(false);setPassword('');}
   }
-  async function confirm(e:FormEvent){
+  async function confirmEnable(e:FormEvent){
     e.preventDefault();if(busy)return;
     setBusy(true);setError('');setNotice('');
     try{
@@ -53,7 +53,7 @@ export default function MfaSettings(){
   }
   async function disable(e:FormEvent){
     e.preventDefault();if(busy)return;
-    if(!confirm('Выключить двухфакторную защиту?'))return;
+    if(!window.confirm('Выключить двухфакторную защиту?'))return;
     setBusy(true);setError('');setNotice('');
     try{
       await request({action:'disable',password,code});
@@ -95,7 +95,7 @@ export default function MfaSettings(){
         <button type="button" className="account-out"
           onClick={()=>void navigator.clipboard.writeText(enrollment.secret)} aria-label="Скопировать секрет"><Copy size={17}/></button>
       </div></label>
-      <form className="mfa-form" onSubmit={confirm}>
+      <form className="mfa-form" onSubmit={confirmEnable}>
         <label>Шестизначный код из приложения<input required inputMode="numeric" pattern="[0-9]{6}"
           autoComplete="one-time-code" value={code} onChange={e=>setCode(e.target.value)}
           maxLength={6} placeholder="000000"/></label>
