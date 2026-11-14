@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { ArrowLeft, ShieldCheck, CheckCircle2, Package } from 'lucide-react';
 import AddToCart from '../AddToCart';
 import ProductGallery from './ProductGallery';
+import FavoriteButton from '../FavoriteButton';
 
 type RecordSpec={name:string;value:string};
 type ProductModel={
@@ -19,7 +20,7 @@ function specsOf(value:unknown):RecordSpec[]{
 }
 const money=(n:number)=>(n/100).toLocaleString('ru-RU',{style:'currency',currency:'RUB'});
 
-export default function ProductView({p,preview=false}:{p:ProductModel;preview?:boolean}){
+export default function ProductView({p,preview=false,favorite=false,signedIn=false}:{p:ProductModel;preview?:boolean;favorite?:boolean;signedIn?:boolean}){
   const gallery=p.images.map(i=>({url:i.url,alt:i.alt}));
   if(p.imageUrl&&!gallery.some(i=>i.url===p.imageUrl))gallery.unshift({url:p.imageUrl,alt:p.name});
   const specs=specsOf(p.specs);
@@ -45,6 +46,7 @@ export default function ProductView({p,preview=false}:{p:ProductModel;preview?:b
         {!preview?<AddToCart productId={p.id} name={p.name} priceKopecks={p.priceKopecks}
           variants={activeVariants.map(v=>({id:v.id,label:v.label,sku:v.sku,priceKopecks:v.priceKopecks}))}/>:
           <Link className="button button-ghost" href="/admin/products">Вернуться к редактированию</Link>}
+        {!preview&&<FavoriteButton productId={p.id} initial={favorite} signedIn={signedIn}/>}
         <div className="product-alert">Реальные платежи и автоматическая выдача отключены. Оформление создаёт неоплаченный демо-заказ.</div>
         <div className="product-points">
           <span><ShieldCheck size={18}/> Проверка цены на сервере</span>
