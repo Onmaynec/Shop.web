@@ -44,7 +44,7 @@ export default function OrderQueue({initial,actorId,total,canViewOrders=false}:{
     <div className="adm-head"><div><div className="adm-eyebrow">FULFILLMENT / ОЧЕРЕДЬ</div>
       <h1>Очередь исполнения</h1>
       <p>Открытые позиции заказов, их ответственные и статус. Задач в очереди: {total}.</p>
-    </div><Link href="/admin/orders" className="adm-btn">Заказы <ArrowUpRight size={16}/></Link></div>
+    </div>{canViewOrders&&<Link href="/admin/orders" className="adm-btn">Заказы <ArrowUpRight size={16}/></Link>}</div>
     {message&&<div className="adm-alert" role="alert">{message}</div>}
     <div className="adm-hint">Задачи создаются только после проверенного платёжного события. Sandbox доступен исключительно для локального тестирования.</div>
     <section className="adm-card">
@@ -60,16 +60,18 @@ export default function OrderQueue({initial,actorId,total,canViewOrders=false}:{
               {item.assignedTo?' · Исполнитель: '+item.assignedTo:''}</small>
             {canViewOrders&&<Link href={'/admin/orders?q='+encodeURIComponent(item.orderId)}>
               Открыть заказ <ArrowUpRight size={13}/></Link>}
+            {(canViewOrders||item.assignedToId===actorId)&&<Link href={'/admin/queue/'+item.orderId}>
+              Материалы заказа <ArrowUpRight size={13}/></Link>}
           </div>
           <div className="adm-queue-controls">
             <select className="adm-field" value={item.status}
               aria-label={'Статус задачи '+item.name}
-              disabled={busy!==null||!canAct}
+              disabled={busy!==null||!canAct||(!canViewOrders&&item.assignedToId!==actorId)}
               onChange={e=>update(item,e.target.value as Status)}>
               {Object.entries(labels).map(([value,label])=>
                 <option value={value} key={value}>{label}</option>)}
             </select>
-            <button className="adm-btn" disabled={busy!==null||!canAct}
+            <button className="adm-btn" disabled={busy!==null||!canAct||(!canViewOrders&&!!item.assignedToId&&item.assignedToId!==actorId)}
               onClick={()=>update(item,item.status,item.assignedToId===actorId?null:actorId)}>
               {item.assignedToId===actorId?'Освободить':'Взять'}
             </button>
