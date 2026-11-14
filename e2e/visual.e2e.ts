@@ -51,6 +51,9 @@ test('profile and admin UI',async({page},testInfo)=>{
   await expect(page.getByRole('heading',{name:'Безопасность аккаунта'})).toBeVisible();
   await expect(page.getByRole('heading',{name:/Активные сессии/})).toBeVisible();
   await screenshot(page,testInfo,'account-security');
+  await page.goto('/account/notifications');
+  await expect(page.getByRole('heading',{name:'Сообщения магазина'})).toBeVisible();
+  await screenshot(page,testInfo,'account-notifications');
   await page.goto('/account');
   await page.getByRole('link',{name:/Панель управления/}).click();
   await expect(page.getByRole('heading',{name:'Панель управления'})).toBeVisible();
@@ -66,6 +69,9 @@ test('profile and admin UI',async({page},testInfo)=>{
   await page.goto('/admin/orders');
   await expect(page.getByRole('heading',{name:'Заказы'})).toBeVisible();
   await screenshot(page,testInfo,'admin-orders');
+  await page.goto('/admin/queue');
+  await expect(page.getByRole('heading',{name:'Очередь исполнения'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-queue');
   await page.goto('/admin/customers');
   await expect(page.getByRole('heading',{name:'Пользователи'})).toBeVisible();
   await screenshot(page,testInfo,'admin-customers');
