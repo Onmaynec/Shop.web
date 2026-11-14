@@ -31,13 +31,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
-      - name: Export reproducible dependency lockfile
-        uses: actions/upload-artifact@v4
-        with:
-          name: standoffshop-lockfile
-          path: package-lock.json
-          retention-days: 1
+        run: npm ci --no-audit --no-fund
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
       - name: Validate schema
@@ -93,7 +87,7 @@ jobs:
         with:
           node-version: '22'
       - name: Install dependencies
-        run: npm install --no-audit --no-fund
+        run: npm ci --no-audit --no-fund
       - name: Validate and generate Prisma client
         run: |
           npx prisma validate
