@@ -63,12 +63,13 @@ export default function SiteHeader() {
         <Link href="/" className="brand" aria-label="StandoffShop — главная">
           <span className="brand-mark" aria-hidden="true">S</span>
           <span>STANDOFF<span className="brand-thin">SHOP</span></span>
-          <span className="brand-version">/ 05</span>
+          <span className="brand-version">/ 09 RC</span>
         </Link>
 
         <nav className="desktop-nav" aria-label="Основное меню">
           <Link href="/" aria-current={pathname === '/' ? 'page' : undefined}>Главная</Link>
           <Link href="/catalog" aria-current={pathname.startsWith('/catalog') || pathname.startsWith('/product') ? 'page' : undefined}>Каталог</Link>
+          <Link href="/support" aria-current={pathname.startsWith('/support') ? 'page' : undefined}>Поддержка</Link>
           <Link href="/account" aria-current={pathname.startsWith('/account') ? 'page' : undefined}>Кабинет</Link>
         </nav>
 
@@ -89,6 +90,7 @@ export default function SiteHeader() {
         <Link href="/">Главная <ArrowUpRight size={16}/></Link>
         <Link href="/catalog">Каталог <ArrowUpRight size={16}/></Link>
         <Link href="/cart">Корзина <span>{cartCount}</span></Link>
+        <Link href="/support">Поддержка <ArrowUpRight size={16}/></Link>
         <Link href="/account">Личный кабинет <ArrowUpRight size={16}/></Link>
         <button type="button" onClick={() => { setMobileOpen(false); setSearchOpen(true); }}>Поиск <Search size={16}/></button>
       </nav>}
