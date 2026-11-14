@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { Prisma } from '@prisma/client';
 import { z } from 'zod';
 import { db } from '../../../../../lib/db';
-import { adminGate,adminApiError,readAdminBody } from '../../../../../lib/admin-api';
+import { staffGate,adminApiError,readAdminBody } from '../../../../../lib/admin-api';
 import { currentUser } from '../../../../../lib/auth';
 import { auditEntry } from '../../../../../lib/audit';
 import { actionableStatuses,addCustomerNotification,hasVerifiedPayment } from '../../../../../lib/order-operations';
@@ -25,11 +25,13 @@ const input=z.discriminatedUnion('action',[
 class ActionConflict extends Error {}
 
 export async function POST(req:Request){
-  const denied=await adminGate(req,true);if(denied)return denied;
+  const denied=await staffGate(req,'fulfillment',true);if(denied)return denied;
   try{
     const actor=await currentUser();
     if(!actor)return NextResponse.json({error:'Нет доступа'},{status:403});
     const data=input.parse(await readAdminBody(req));
+    if(actor.role!=='ADMIN'&&data.action!=='task')return NextResponse.json({error:'Недостаточно прав'},{status:403});
+    if(actor.role==='FULFILLMENT'&&data.action==='task'&&data.assignedToId!==undefined&&data.assignedToId!==null&&data.assignedToId!==actor.id){return NextResponse.json({error:'Исполнитель может назначать задачи только себе'},{status:403});}
     const result=await db.$transaction(async tx=>{
       // Lock the order row to serialize fulfillment changes against refund transitions.
       await tx.$queryRaw`SELECT "id" FROM "Order" WHERE "id" = ${data.orderId} FOR UPDATE`;
@@ -84,7 +86,7 @@ export async function POST(req:Request){
       if(order.status==='FULFILLED')throw new ActionConflict('Заказ уже выполнен.');
       if(data.assignedToId){
         const assignee=await tx.user.findFirst({
-          where:{id:data.assignedToId,role:'ADMIN'},select:{id:true}
+          where:{id:data.assignedToId,role:{in:['ADMIN','FULFILLMENT']}},select:{id:true}
         });
         if(!assignee)throw new ActionConflict('Назначить можно только администратора');
       }
