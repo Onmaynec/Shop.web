@@ -50,11 +50,12 @@ export default function AddToCart({
       </button>)}</div>
     </fieldset>}
     <div className="variant-action-row">
-      <button className="button button-light" type="button" onClick={add}>
+      <button className="button button-light" type="button" onClick={add}
+        aria-label={added?'Добавлено в корзину':'Добавить в корзину'}>
         {added?<Check size={17}/>:<ShoppingBag size={17}/>}
         {added?'Добавлено':'В корзину'} · {money(effectivePrice)}
       </button>
-      {added&&<Link href="/cart" className="button button-ghost">Оформить <ArrowUpRight size={16}/></Link>}
+      {added&&<Link href="/cart" className="button button-ghost">Перейти к заказу <ArrowUpRight size={16}/></Link>}
     </div>
     {error&&<p className="account-error" role="alert">{error}</p>}
   </div>;
