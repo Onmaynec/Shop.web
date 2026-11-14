@@ -32,6 +32,12 @@ jobs:
           node-version: '22'
       - name: Install dependencies
         run: npm install --no-audit --no-fund
+      - name: Export reproducible dependency lockfile
+        uses: actions/upload-artifact@v4
+        with:
+          name: standoffshop-lockfile
+          path: package-lock.json
+          retention-days: 1
       - name: Audit production dependencies
         run: npm audit --omit=dev --audit-level=high
       - name: Validate schema
