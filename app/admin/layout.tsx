@@ -10,7 +10,7 @@ export default async function AdminLayout({children}:{children:React.ReactNode})
     <p className="muted">Для входа в управление магазином требуется роль сотрудника.</p></main>;
   return <div className="adm-shell"><AdminNav email={user.email} role={user.role}/>
     <div className="adm-workspace"><header className="adm-topbar">
-      <span className="adm-topbar-title">Управление StandoffShop <span>/ v0.9.0-pre.1</span></span>
+      <span className="adm-topbar-title">Управление StandoffShop <span>/ v1.0.0</span></span>
       <span className="adm-live"><i/> {user.role==='ADMIN'?'Администратор':user.role==='SUPPORT'?'Поддержка':'Исполнитель'}</span>
     </header><div className="adm-main">{children}</div></div></div>;
 }
