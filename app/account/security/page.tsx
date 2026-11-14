@@ -3,6 +3,7 @@
 import Link from 'next/link';
 import { useEffect,useState,type FormEvent } from 'react';
 import { ArrowLeft, ShieldCheck, LogOut, LockKeyhole, Monitor, RefreshCw } from 'lucide-react';
+import MfaSettings from '../../../components/account/MfaSettings';
 
 type Session = {
   id:string;createdAt:string;lastSeenAt:string;expiresAt:string;current:boolean
@@ -96,5 +97,6 @@ export default function SecuritySettings() {
         </form>
       </section>
     </div>
+    <MfaSettings/>
   </main>;
 }
