@@ -24,7 +24,7 @@ export async function PATCH(request:Request){
     }
     const result=await db.$transaction(async tx=>{
       // Serialize role changes and re-check the actor after acquiring the lock.
-      await tx.$queryRaw`SELECT pg_advisory_xact_lock(4819022026)`;
+      await tx.$queryRaw`SELECT pg_advisory_xact_lock(4819022026)::text AS locked`;
       const existingActor=await tx.user.findUnique({where:{id:actor.id},select:{role:true}});
       if(existingActor?.role!=='ADMIN')throw new RoleConflict('Права администратора изменились');
       const target=await tx.user.findUnique({
