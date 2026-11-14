@@ -1,11 +1,13 @@
 import Link from 'next/link';
 import { ArrowUpRight } from 'lucide-react';
 import SiteHeader from '../components/SiteHeader';
+import {publicIndexingEnabled} from '../lib/public-indexing';
 import './style.css';
 
 export const metadata = {
   title: {default:'StandoffShop — цифровые товары и услуги',template:'%s | StandoffShop'},
-  description:'Независимый магазин цифровых товаров и услуг для игроков Standoff 2'
+  description:'Независимый магазин цифровых товаров и услуг для игроков Standoff 2',
+  robots:publicIndexingEnabled()?{index:true,follow:true}:{index:false,follow:false}
 };
 
 export default function RootLayout({children}:{children:React.ReactNode}) {
