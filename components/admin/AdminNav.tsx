@@ -1,13 +1,14 @@
 'use client';
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
-import { LayoutDashboard, Package, Layers3, ReceiptText, Users, ArrowUpRight, ShieldCheck } from 'lucide-react';
+import { LayoutDashboard, Package, Layers3, ReceiptText, Users, ArrowUpRight, ShieldCheck, ScrollText } from 'lucide-react';
 const links = [
   { href:'/admin', label:'Обзор', Icon:LayoutDashboard },
   { href:'/admin/products', label:'Товары', Icon:Package },
   { href:'/admin/categories', label:'Категории', Icon:Layers3 },
   { href:'/admin/orders', label:'Заказы', Icon:ReceiptText },
-  { href:'/admin/customers', label:'Покупатели', Icon:Users }
+  { href:'/admin/customers', label:'Покупатели', Icon:Users },
+  { href:'/admin/audit', label:'Аудит', Icon:ScrollText }
 ];
 export default function AdminNav({email}:{email:string}) {
   const path = usePathname();
