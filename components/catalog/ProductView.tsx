@@ -34,7 +34,7 @@ export default function ProductView({p,preview=false}:{p:ProductModel;preview?:b
         <div className="eyebrow">{p.category.name.toUpperCase()}</div>
         <h1>{p.name}</h1>
         {p.sku&&<div className="product-sku">Артикул: <code>{p.sku}</code></div>}
-        {p.tags.length>0&&<div className="product-tags">{p.tags.map(tag=><span key={tag}>{tag}</span>)}</div>}
+        {p.tags.length>0&&<div className="product-tags">{p.tags.map(tag=><Link key={tag} href={'/catalog?tag='+encodeURIComponent(tag)}>{tag}</Link>)}</div>}
         <p className="product-description">{p.description}</p>
         {specs.length>0&&<section className="product-specs">
           <h2>Характеристики</h2>
