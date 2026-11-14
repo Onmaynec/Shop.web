@@ -105,3 +105,6 @@
 @media(max-width:1150px){.adm-main{padding:27px}}
 @media(max-width:760px){.adm-main{padding:23px 16px}.adm-sidebar{width:100%;padding:14px}.adm-brand-mark{height:38px;width:38px}.adm-head{gap:15px}.adm-table th,.adm-table td{padding:12px}}
 @media(prefers-reduced-motion:reduce){.adm-shell *, .adm-shell *::before, .adm-shell *::after{transition:none!important;animation:none!important}}
+
+/* v0.6.0 / Administrator security journal */
+.audit-detail{max-width:300px;white-space:normal!important;overflow-wrap:anywhere;font-family:ui-monospace,monospace;font-size:11px!important;color:#aaa!important}
