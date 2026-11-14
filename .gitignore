@@ -15,3 +15,6 @@ backups/
 *.backup
 playwright-report/
 test-results/
+
+# Locally uploaded product media and storefront artwork
+data/
