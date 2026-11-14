@@ -1,8 +1,9 @@
+type IndexEnv={NODE_ENV?:string;PUBLIC_INDEXING_ENABLED?:string;SITE_ORIGIN?:string};
 /** Search engines must not index a demo shop unless explicitly enabled at deployment. */
-export function publicIndexingEnabled(env:NodeJS.ProcessEnv=process.env):boolean{
+export function publicIndexingEnabled(env:IndexEnv=process.env):boolean{
   return env.NODE_ENV==='production'&&env.PUBLIC_INDEXING_ENABLED==='true'&&Boolean(siteOrigin(env));
 }
-export function siteOrigin(env:NodeJS.ProcessEnv=process.env):string|null{
+export function siteOrigin(env:IndexEnv=process.env):string|null{
   const value=env.SITE_ORIGIN;
   if(!value)return null;
   try{
