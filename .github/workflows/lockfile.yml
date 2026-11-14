@@ -1,0 +1,30 @@
+name: Generate lockfile
+
+on:
+  push:
+    branches: [main]
+
+jobs:
+  lockfile:
+    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'build(lockfile)')
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Resolve and lock dependency graph
+        run: npm install --package-lock-only --ignore-scripts --no-audit --no-fund
+      - name: Commit verified dependency lock
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json
+          if ! git diff --cached --quiet; then
+            git commit -m 'build: lock dependencies for StandoffShop v0.6.0'
+            git push origin HEAD:main
+          fi
