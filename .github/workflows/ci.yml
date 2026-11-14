@@ -64,6 +64,7 @@ jobs:
           node tests/smoke.mjs
           node tests/security.mjs
           node tests/catalog-pro.mjs
+          node tests/operations-support.mjs
 
   sandbox:
     runs-on: ubuntu-latest
@@ -109,9 +110,10 @@ jobs:
           if [ "$ready" -ne 1 ]; then cat /tmp/standoffshop-dev.log; exit 1; fi
           node tests/sandbox.mjs
           node tests/order-management.mjs
+          node tests/workforce.mjs
 
   release:
-    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'release(v0.8.0)')
+    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'release(v0.9.0-rc.1)')
     needs: [verify, sandbox]
     runs-on: ubuntu-latest
     permissions:
@@ -127,11 +129,11 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git fetch --tags origin
-          if ! git rev-parse -q --verify refs/tags/v0.8.0 >/dev/null; then
-            git tag -a v0.8.0 -m 'StandoffShop v0.8.0 — Order Management 2.0'
-            git push origin refs/tags/v0.8.0
+          if ! git rev-parse -q --verify refs/tags/v0.9.0-rc.1 >/dev/null; then
+            git tag -a v0.9.0-rc.1 -m 'StandoffShop v0.9.0-rc.1 — Operations & Support Pre-Release'
+            git push origin refs/tags/v0.9.0-rc.1
           fi
-          if ! gh release view v0.8.0 >/dev/null 2>&1; then
-            gh release create v0.8.0 --title 'StandoffShop v0.8.0 — Order Management 2.0' --notes-file docs/RELEASE-0.8.0.md
+          if ! gh release view v0.9.0-rc.1 >/dev/null 2>&1; then
+            gh release create v0.9.0-rc.1 --prerelease --title 'StandoffShop v0.9.0-rc.1 — Operations & Support Pre-Release' --notes-file docs/RELEASE-0.9.0-rc.1.md
           fi
-          gh release edit v0.8.0 --title 'StandoffShop v0.8.0 — Order Management 2.0'
+          gh release edit v0.9.0-rc.1 --prerelease --title 'StandoffShop v0.9.0-rc.1 — Operations & Support Pre-Release'
