@@ -1,6 +1,6 @@
 {
   "name": "standoffshop",
-  "version": "0.7.0",
+  "version": "0.8.0",
   "private": true,
   "scripts": {
     "dev": "next dev",
@@ -16,7 +16,8 @@
     "db:migrate": "prisma migrate deploy",
     "db:status": "prisma migrate status",
     "test:security": "node tests/security.mjs",
-    "test:catalog": "node tests/catalog-pro.mjs"
+    "test:catalog": "node tests/catalog-pro.mjs",
+    "test:orders": "node tests/order-management.mjs"
   },
   "dependencies": {
     "next": "15.5.29",
