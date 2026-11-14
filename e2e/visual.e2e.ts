@@ -72,6 +72,18 @@ test('profile and admin UI',async({page},testInfo)=>{
   await page.goto('/admin/queue');
   await expect(page.getByRole('heading',{name:'Очередь исполнения'})).toBeVisible();
   await screenshot(page,testInfo,'admin-queue');
+  await page.goto('/admin/support');
+  await expect(page.getByRole('heading',{name:'Обращения покупателей'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-support-inbox');
+  await page.goto('/admin/staff');
+  await expect(page.getByRole('heading',{name:'Команда магазина'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-staff');
+  await page.goto('/admin/operations');
+  await expect(page.getByRole('heading',{name:'Операционная аналитика'})).toBeVisible();
+  await screenshot(page,testInfo,'admin-operations');
+  await page.goto('/support');
+  await expect(page.getByRole('heading',{name:'Центр поддержки'})).toBeVisible();
+  await screenshot(page,testInfo,'customer-support');
   await page.goto('/admin/customers');
   await expect(page.getByRole('heading',{name:'Пользователи'})).toBeVisible();
   await screenshot(page,testInfo,'admin-customers');
