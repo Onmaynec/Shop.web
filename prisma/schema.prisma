@@ -77,6 +77,13 @@ model User {
   ticketsCreated   SupportTicket[]  @relation("TicketCustomer")
   ticketsAssigned  SupportTicket[]  @relation("TicketAssignee")
   ticketMessages   SupportMessage[]
+  favorites         Favorite[]
+  mfaEnabledAt      DateTime?
+  mfaSecretCiphertext String?
+  mfaPendingCiphertext String?
+  mfaPendingUntil   DateTime?
+  mfaLastUsedStep   Int?
+  mfaRecoveryCodes  MfaRecoveryCode[]
 }
 
 model Category {
@@ -108,6 +115,7 @@ model Product {
   categoryId    String
   category      Category      @relation(fields: [categoryId], references: [id])
   orderItems    OrderItem[]
+  favorites     Favorite[]
   createdAt     DateTime      @default(now())
 }
 
@@ -356,4 +364,25 @@ model SupportMessage {
 
   @@index([ticketId,createdAt])
   @@index([authorId,createdAt])
+}
+
+model MfaRecoveryCode {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  codeHash  String   @unique
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+model Favorite {
+  userId    String
+  productId String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  createdAt DateTime @default(now())
+
+  @@id([userId, productId])
+  @@index([userId, createdAt])
 }
