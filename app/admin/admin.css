@@ -168,3 +168,50 @@
 .adm-cms-demo-button{display:inline-block;padding:12px 18px;border-radius:8px;background:#ededed;color:#080808;font-size:12px;font-weight:750}
 @media(max-width:1050px){.adm-cms-layout{grid-template-columns:1fr}.adm-cms-preview-wrap{position:static}.adm-cms-preview{min-height:330px}}
 @media(max-width:650px){.adm-cms-form{padding:17px}}
+
+/* v0.8.0 / Order operations workspace */
+.adm-order-workspace{display:grid;gap:20px;padding:27px 25px}
+.adm-order-workspace>ul{margin:0;padding-left:18px;color:#c9c9c9;line-height:1.8}
+.adm-order-workspace>strong{font-size:18px}
+.adm-order-workspace>.adm-hint{margin:0}
+.adm-order-workspace h3{display:flex;align-items:center;gap:10px;font-size:17px;letter-spacing:-.03em;margin:0 0 17px}
+.adm-order-actions{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin:0;padding-bottom:18px;border-bottom:1px solid #303030}
+.adm-order-columns{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:19px}
+.adm-order-section{min-width:0;border:1px solid #323232;background:linear-gradient(165deg,#121212,#090909);border-radius:11px;padding:20px}
+.adm-order-section .adm-note{font-size:12px;line-height:1.75;margin:0 0 15px}
+.adm-order-tasks-count{font-size:13px;color:#aaa;font-family:ui-monospace,monospace}
+.adm-task-list{display:grid;gap:12px}
+.adm-task{display:grid;gap:11px;padding:16px;background:#080808;border:1px solid #2d2d2d;border-radius:10px}
+.adm-task-head{display:flex;justify-content:space-between;align-items:start;gap:10px}
+.adm-task-head strong{font-size:13px;line-height:1.4}
+.adm-task>small{font-size:11px;color:#9a9a9a;line-height:1.5}
+.adm-task-controls{display:flex;gap:9px;align-items:center;flex-wrap:wrap}
+.adm-task-controls select{flex:1;min-width:130px}
+.adm-upload-delivery{display:inline-flex;gap:8px;align-items:center;cursor:pointer;line-height:1.5;max-width:100%}
+.adm-delivery-list{display:grid;gap:8px;margin-top:15px}
+.adm-delivery{padding:13px;background:#080808;border:1px solid #303030;border-radius:9px;display:flex;align-items:center;justify-content:space-between;gap:11px}
+.adm-delivery strong{display:block;font-size:12px;overflow-wrap:anywhere}
+.adm-delivery small{display:block;margin-top:6px;font-size:11px;color:#888}
+.adm-note-form{display:grid;gap:13px}
+.adm-note-form label{display:grid;gap:8px;font-size:12px;color:#aaa}
+.adm-note-form textarea{min-height:100px;resize:vertical}
+.adm-note-form>.adm-btn{justify-self:start}
+.adm-order-timeline{display:grid;gap:0;max-height:440px;overflow-y:auto}
+.adm-order-event{position:relative;border-left:1px solid #424242;padding:0 0 22px 20px;margin-left:5px;display:grid;gap:7px}
+.adm-order-event::before{content:"";position:absolute;top:2px;left:-5px;width:8px;height:8px;border:1px solid #bdbdbd;border-radius:50%;background:#090909}
+.adm-order-event>span{font-size:10px;color:#7d7d7d}
+.adm-order-event strong{font-size:13px;color:#ddd}
+.adm-order-event p{font-size:12px;color:#b4b4b4;white-space:pre-wrap;overflow-wrap:anywhere;line-height:1.65;margin:0}
+.adm-order-event small{font-size:10px;color:#767676}
+.adm-queue-list{display:grid}
+.adm-queue-row{display:flex;align-items:center;gap:17px;padding:21px;border-bottom:1px solid #292929}
+.adm-queue-row:last-child{border-bottom:0}
+.adm-queue-icon{flex:none;width:47px;height:47px;border:1px solid #3b3b3b;background:#151515;border-radius:10px;display:grid;place-items:center}
+.adm-queue-description{min-width:0;display:grid;gap:8px;flex:1}
+.adm-queue-description strong{font-size:14px}
+.adm-queue-description small{font-size:11px;line-height:1.5;color:#898989;overflow-wrap:anywhere}
+.adm-queue-description a{font-size:11px;color:#d1d1d1;display:inline-flex;gap:6px;align-items:center;justify-self:start}
+.adm-queue-controls{display:flex;gap:8px;flex-wrap:wrap}
+.adm-queue-controls select{min-width:145px}
+@media(max-width:1100px){.adm-order-columns{grid-template-columns:1fr}.adm-queue-row{align-items:start;flex-wrap:wrap}.adm-queue-controls{margin-left:64px}}
+@media(max-width:620px){.adm-order-workspace{padding:16px}.adm-order-section{padding:15px}.adm-queue-row{padding:15px}.adm-queue-icon{width:36px;height:36px}.adm-queue-controls{margin-left:0;width:100%}.adm-queue-controls select{flex:1}.adm-task-controls{align-items:stretch}}
