@@ -5,7 +5,7 @@ export default function robots():MetadataRoute.Robots{
   const origin=siteOrigin();
   return {
     rules:{userAgent:'*',allow:'/',disallow:[
-      '/admin/','/account/','/api/','/support/','/cart'
+      '/admin','/account','/api','/support','/cart'
     ]},
     ...(origin?{sitemap:origin+'/sitemap.xml'}:{})
   };
