@@ -83,12 +83,22 @@ export async function POST(req:Request){
         where:{id:data.taskId},select:{id:true,orderId:true,status:true,assignedToId:true}
       });
       if(!task||task.orderId!==order.id)throw new ActionConflict('Задача не найдена в данном заказе');
+      if(actor.role==='FULFILLMENT'){
+        if(task.assignedToId&&task.assignedToId!==actor.id)
+          throw new ActionConflict('Задача назначена другому сотруднику.');
+        const newAssignee=data.assignedToId===undefined?task.assignedToId:data.assignedToId;
+        if(newAssignee!==actor.id&&data.status!==task.status)
+          throw new ActionConflict('Сначала возьмите задачу на себя.');
+        if(newAssignee===null&&task.status!==data.status)
+          throw new ActionConflict('Перед снятием назначения сохраните статус задачи.');
+      }
+
       if(order.status==='FULFILLED')throw new ActionConflict('Заказ уже выполнен.');
       if(data.assignedToId){
         const assignee=await tx.user.findFirst({
           where:{id:data.assignedToId,role:{in:['ADMIN','FULFILLMENT']}},select:{id:true}
         });
-        if(!assignee)throw new ActionConflict('Назначить можно только администратора');
+        if(!assignee)throw new ActionConflict('Назначить можно только администратора или исполнителя');
       }
       const changed=await tx.orderTask.update({
         where:{id:task.id},data:{
