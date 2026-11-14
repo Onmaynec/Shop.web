@@ -196,3 +196,16 @@ model ProductVariant {
 
   @@index([productId, active, position])
 }
+
+model StorefrontContent {
+  key           String   @id
+  headline      String
+  subheadline   String
+  description   String
+  eyebrow       String
+  ctaLabel      String
+  ctaHref       String
+  backgroundUrl String?
+  published     Boolean  @default(false)
+  updatedAt     DateTime @updatedAt
+}
