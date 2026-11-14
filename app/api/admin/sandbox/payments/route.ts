@@ -5,6 +5,8 @@ import { db } from '../../../../../lib/db';
 import { adminGate, adminApiError } from '../../../../../lib/admin-api';
 import { SandboxPaymentProvider, sandboxEnabled, signSandboxWebhook } from '../../../../../lib/payments';
 import { applyVerifiedPaymentEvent, PaymentEventConflict } from '../../../../../lib/payment-events';
+import { currentUser } from '../../../../../lib/auth';
+import { readAdminBody } from '../../../../../lib/admin-api';
 
 export const runtime = 'nodejs';
 
@@ -21,7 +23,8 @@ export async function POST(request: Request) {
   if (!sandboxEnabled()) return NextResponse.json({ error: 'Not found' }, { status: 404 });
   const denied = await adminGate(request, true); if (denied) return denied;
   try {
-    const { orderId, operation } = input.parse(await request.json());
+    const actor=await currentUser();if(!actor)return NextResponse.json({error:'Нет доступа'},{status:403});
+    const { orderId, operation } = input.parse(await readAdminBody(request));
     const order = await db.order.findUnique({
       where: { id: orderId },
       include: { paymentAttempts: { where: { provider: 'sandbox' }, orderBy: { createdAt: 'desc' } } }
@@ -64,7 +67,7 @@ export async function POST(request: Request) {
     const timestamp = Math.floor(Date.now() / 1000).toString();
     const signature = signSandboxWebhook(rawBody, timestamp);
     const verified = new SandboxPaymentProvider().verifyWebhook({rawBody,timestamp,signature});
-    const result = await applyVerifiedPaymentEvent(verified);
+    const result = await applyVerifiedPaymentEvent(verified,{adminActorId:actor.id});
     return NextResponse.json({ sandbox: true, ...result });
   } catch (error) {
     if (error instanceof PaymentEventConflict) return NextResponse.json({ error: error.message }, { status: 409 });
