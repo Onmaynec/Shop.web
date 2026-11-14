@@ -106,7 +106,7 @@ jobs:
           node tests/sandbox.mjs
 
   release:
-    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'release(v0.6.0)')
+    if: github.event_name == 'push' && startsWith(github.event.head_commit.message, 'release(v0.7.0)')
     needs: [verify, sandbox]
     runs-on: ubuntu-latest
     permissions:
@@ -122,10 +122,10 @@ jobs:
           git config user.name 'github-actions[bot]'
           git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
           git fetch --tags origin
-          if ! git rev-parse -q --verify refs/tags/v0.6.0 >/dev/null; then
-            git tag -a v0.6.0 -m 'StandoffShop v0.6.0 — Security & Stability'
-            git push origin refs/tags/v0.6.0
+          if ! git rev-parse -q --verify refs/tags/v0.7.0 >/dev/null; then
+            git tag -a v0.7.0 -m 'StandoffShop v0.7.0 — Catalog Pro'
+            git push origin refs/tags/v0.7.0
           fi
-          if ! gh release view v0.6.0 >/dev/null 2>&1; then
-            gh release create v0.6.0 --title 'StandoffShop v0.6.0 — Security & Stability' --notes-file docs/RELEASE-0.6.0.md
+          if ! gh release view v0.7.0 >/dev/null 2>&1; then
+            gh release create v0.7.0 --title 'StandoffShop v0.7.0 — Catalog Pro' --notes-file docs/RELEASE-0.6.0.md
           fi
